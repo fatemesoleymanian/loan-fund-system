@@ -10,9 +10,12 @@ class MonthlyChargeAccountController extends Controller
 {
     public function create(MonthlyChargeAccountRequest $request){
         $request->validated();
-        $member = MonthlyChargeAccount::create([
+        $member = MonthlyChargeAccount::updateOrCreate([
             'account_id' => $request->account_id,
-            'monthly_charge_id' => $request->monthly_charge_id
+            'year'=>$request->year
+        ], [   'account_id' => $request->account_id,
+             'monthly_charge_id' => $request->monthly_charge_id,
+            'year'=>$request->year
         ]);
         if ($member) return response()->json([
             'msg' => ' با موفقیت اضافه شد. .',

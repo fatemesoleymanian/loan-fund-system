@@ -38,7 +38,7 @@ class AccountController extends Controller
             'description' => $request->description,
         ]);
         if ($account) return response()->json([
-            'msg' => 'شماره حساب با موفقیت آپدیت شد. .',
+            'msg' => ' با موفقیت آپدیت شد.',
             'success' => true
         ],201);
         else return response()->json([

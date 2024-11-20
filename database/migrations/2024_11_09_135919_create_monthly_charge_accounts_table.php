@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('monthly_charge_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->integer('year')->nullable(false);
             $table->timestamps();
         });
     }
