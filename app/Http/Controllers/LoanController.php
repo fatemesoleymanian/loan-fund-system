@@ -16,6 +16,9 @@ class LoanController extends Controller
             'number_of_installments' => $request->number_of_installments,
             'status' => $request->status,
             'year' => $request->year,
+
+
+
             'due_date' => $request->due_date,
             'issue_date' => $request->issue_date,
             'end_date' => $request->end_date,
