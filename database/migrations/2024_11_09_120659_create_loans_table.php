@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('number_of_installments')->nullable(false);
             $table->boolean('status')->default(true);
             $table->integer('year')->nullable(false);
+            $table->integer('intervalDays')->default(1);
             $table->timestamp('due_date');
             $table->timestamp('issue_date');
             $table->timestamp('end_date');

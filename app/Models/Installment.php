@@ -16,6 +16,10 @@ class Installment extends Model
     {
         return verta($val)->format('l d %B Y');
     }
+    public function getDueDateAttribute($val)
+    {
+        return verta($val)->format('Y/m/d');
+    }
     public  function loan()
     {
         return $this->hasOne(Loan::class, 'loan_id');

@@ -10,13 +10,25 @@ class Loan extends Model
     protected $guarded = [];
     const TYPE_CHARITY = 'وام قرض الحسنه';
 
-    public function getCreatedAtAttribute($val)
+//    public function getCreatedAtAttribute($val)
+//    {
+//        return verta($val)->format('l d %B Y');
+//    }
+//    public function getUpdatedAtAttribute($val)
+//    {
+//        return verta($val)->format('l d %B Y');
+//    }
+    public function getDueDateAttribute($val)
     {
-        return verta($val)->format('l d %B Y');
+        return verta($val)->format('Y/m/d');
     }
-    public function getUpdatedAtAttribute($val)
+    public function getIssueDateAttribute($val)
     {
-        return verta($val)->format('l d %B Y');
+        return verta($val)->format('Y/m/d');
+    }
+    public function getEndDateAttribute($val)
+    {
+        return verta($val)->format('Y/m/d');
     }
 
      public static function getLoanTypes()

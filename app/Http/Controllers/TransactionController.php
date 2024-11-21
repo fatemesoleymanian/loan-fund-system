@@ -121,7 +121,7 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function successResponse($message, $statusCode)
+    public static function successResponse($message, $statusCode)
     {
         return response()->json([
             'msg' => $message,
@@ -129,7 +129,7 @@ class TransactionController extends Controller
         ], $statusCode);
     }
 
-    public function errorResponse($message)
+    public static function errorResponse($message)
     {
         return response()->json([
             'msg' => $message,

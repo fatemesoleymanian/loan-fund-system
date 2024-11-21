@@ -25,7 +25,8 @@ class LoanRequest extends FormRequest
     public function rules()
     {
         return   [
-            'principal_amount' => ['required' | 'numeric'],
+            'installments' => 'required|array',
+            'principal_amount' => 'required|numeric',
             'type' => ['required' , 'in:' .implode(',',Loan::getLoanTypes())],
             'number_of_installments' => "required",
             'status' => "required",
@@ -38,6 +39,7 @@ class LoanRequest extends FormRequest
     public function messages()
     {
         return [
+            'installments.required'=>'لطفا اقساط را وارد کنید.',
             'principal_amount.required' => 'لطفا مبلغ وام را انتخاب کنید!',
             'principal_amount.numeric' => 'لطفا مبلغ وام را به درستی وارد کنید!',
             'type.required' => 'لطفا نوع وام را وارد کنید!',

@@ -3,55 +3,85 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoanRequest;
+use App\Models\Installment;
 use App\Models\Loan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LoanController extends Controller
 {
     public function create(LoanRequest $request){
-        $request->validated();
-        $loan = Loan::create([
-            'principal_amount' => $request->principal_amount,
-            'type' => $request->type,
-            'number_of_installments' => $request->number_of_installments,
-            'status' => $request->status,
-            'year' => $request->year,
+        DB::beginTransaction();
+        try {
+            $validated = $request->validated();
+            $loan = $this->createLoan($validated);
+            $this->createInstallments($loan->id,$validated['installments']);
 
-
-
-            'due_date' => $request->due_date,
-            'issue_date' => $request->issue_date,
-            'end_date' => $request->end_date,
+            DB::commit();
+            return TransactionController::successResponse('وام جدیدی با موفقیت اضافه شد.', 201);
+        }catch  (\Exception $e) {
+            DB::rollBack();
+            return  TransactionController::errorResponse('خطایی در ایجاد وام و اقساط رخ داد! ' . $e->getMessage());
+        }
+    }
+    private function createLoan($request){
+        return Loan::create([
+            'principal_amount' => $request['principal_amount'],
+            'type' => $request['type'],
+            'number_of_installments' => $request['number_of_installments'],
+            'status' => $request['status'],
+            'year' => $request['year'],
+            'due_date' => $request['due_date'],
+            'issue_date' => $request['issue_date'],
+            'end_date' => $request['end_date'],
         ]);
-        if ($loan) return response()->json([
-            'msg' => 'وام با موفقیت اضافه شد. .',
-            'success' => true
-        ],201);
-        else return response()->json([
-            'msg' => 'خطایی در ایجاد وام رخ داد!',
-            'success' => false
-        ],500);
+    }
+    private function createInstallments($loan_id,$request){
+        foreach ($request as $installment){
+            Installment::create([
+                'loan_id' => $loan_id,
+                'inst_number' => $installment['inst_number'],
+                'amount_due' => $installment['amount_due'],
+                'due_date' => $installment['due_date'],
+            ]);
+        }
     }
     public function update(LoanRequest $request){
-        $request->validated();
-        $loan = Loan::where('id',$request->id)->update([
-            'principal_amount' => $request->principal_amount,
-            'type' => $request->type,
-            'number_of_installments' => $request->number_of_installments,
-            'status' => $request->status,
-            'year' => $request->year,
-            'due_date' => $request->due_date,
-            'issue_date' => $request->issue_date,
-            'end_date' => $request->end_date,
+        DB::beginTransaction();
+        try {
+            $validated = $request->validated();
+            $this->updateLoan($validated,$request->id);
+            $this->updateInstallments($request->id,$validated['installments']);
+
+            DB::commit();
+            return TransactionController::successResponse('وام با موفقیت آپدیت شد.', 201);
+        }catch  (\Exception $e) {
+            DB::rollBack();
+            return  TransactionController::errorResponse('خطایی در آپدیت وام و اقساط رخ داد! ' . $e->getMessage());
+        }
+    }
+    private function updateLoan($request,$id){
+        return Loan::where('id',$id)->update([
+            'principal_amount' => $request['principal_amount'],
+            'type' => $request['type'],
+            'number_of_installments' => $request['number_of_installments'],
+            'status' => $request['status'],
+            'year' => $request['year'],
+            'due_date' => $request['due_date'],
+            'issue_date' => $request['issue_date'],
+            'end_date' => $request['end_date'],
         ]);
-        if ($loan) return response()->json([
-            'msg' => 'وام با موفقیت آپدیت شد. .',
-            'success' => true
-        ],201);
-        else return response()->json([
-            'msg' => 'خطایی در آپدیت وام رخ داد!',
-            'success' => false
-        ],500);
+    }
+    private function updateInstallments($loan_id,$request){
+        Installment::where('loan_id',$loan_id)->delete();
+        foreach ($request as $installment){
+            Installment::create([
+                'loan_id' => $loan_id,
+                'inst_number' => $installment['inst_number'],
+                'amount_due' => $installment['amount_due'],
+                'due_date' => $installment['due_date'],
+            ]);
+        }
     }
     public function destroy(Request $request){
         $loan = Loan::where('id', $request->id)->delete();

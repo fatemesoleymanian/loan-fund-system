@@ -60,7 +60,7 @@ Route::prefix('/loan')->group(function (){
     Route::get('/{id}',[LoanController::class,'showOne']);
     Route::post('/',[LoanController::class,'create']);
     Route::put('/',[LoanController::class,'update']);
-    Route::delete('/',[LoanController::class,'destroy']);
+    Route::post('/delete',[LoanController::class,'destroy']);
 });
 Route::prefix('/installment')->group(function (){
     Route::get('/',[InstallmentController::class,'showAll']);
