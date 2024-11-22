@@ -20,9 +20,9 @@ class LoanAccountDetailRequest extends FormRequest
     {
         return   [
             'loan_id' => 'required|exists:loans,id',
-            'account_id' => ['required|exists:accounts,id'],
-            'paid_amount' => ['required|numeric'],
-            'remained_amount' => ['required|numeric'],
+            'account_ids' => 'required|array',
+            'paid_amount' => 'required|numeric',
+            'remained_amount' => 'required|numeric',
 
         ];
     }
@@ -30,7 +30,7 @@ class LoanAccountDetailRequest extends FormRequest
     {
         return [
             'loan_id.required' => 'لطفا وام را انتخاب کنید!',
-            'account_id.required' => 'لطفا شماره حساب عضو مربوطه را وارد کنید!',
+            'account_ids.required' => 'لطفا شماره حساب عضو مربوطه را وارد کنید!',
             'paid_amount.numeric' => 'لطفا مقدار پرداخت شده را به درستی وارد کنید!',
             'paid_amount.required' => 'لطفا مقدار پرداخت شده را وارد کنید!',
             'remained_amount.required' => 'لطفا مقدار باقیمانده را وارد کنید!',

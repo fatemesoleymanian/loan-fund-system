@@ -5,25 +5,33 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoanAccountDetailRequest;
 use App\Models\LoanAccountDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LoanAccountDetailController extends Controller
 {
     public function create(LoanAccountDetailRequest $request){
-        $request->validated();
-        $loanAccDetails = LoanAccountDetail::create([
-            'loan_id' => $request->loan_id,
-            'account_id' => $request->account_id,
-            'remained_amount' => $request->remained_amount,
-            'paid_amount' => $request->paid_amount
-        ]);
-        if ($loanAccDetails) return response()->json([
-            'msg' => 'اطلاعات با موفقیت اضافه شد. .',
-            'success' => true
-        ],201);
-        else return response()->json([
-            'msg' => 'خطایی در ایجاد اطلاعات رخ داد!',
-            'success' => false
-        ],500);
+        DB::beginTransaction();
+
+        try {
+            $request->validated();
+            LoanAccountDetail::where('loan_id',$request->loan_id)->delete();
+            foreach ($request->account_ids as $acc) {
+                LoanAccountDetail::create([
+                    'loan_id' => $request->loan_id,
+                    'account_id' => $acc['value'],
+                    'remained_amount' => $request->remained_amount,
+                    'paid_amount' => $request->paid_amount
+                ]);
+            }
+            DB::commit();
+            return response()->json([
+                'msg' => 'اطلاعات با موفقیت اضافه شد. .',
+                'success' => true
+            ], 201);
+        }catch (\Exception $e){
+            DB::rollBack();
+            TransactionController::errorResponse($e->getMessage());
+        }
     }
     public function update(LoanAccountDetailRequest $request){
         $request->validated();

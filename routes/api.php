@@ -49,6 +49,7 @@ Route::prefix('/member')->group(function (){
 });
 Route::prefix('/account')->group(function (){
     Route::get('/',[AccountController::class,'showAll']);
+    Route::get('/list',[AccountController::class,'showList']);
     Route::get('/search={str}',[AccountController::class,'search']);
     Route::get('/{id}',[AccountController::class,'showOne']);
     Route::post('/',[AccountController::class,'create']);

@@ -71,6 +71,13 @@ class AccountController extends Controller
             'success' => true
         ]);
     }
+    public function showList(){
+        $accounts = Account::all();
+        return response()->json([
+            'accounts' => $accounts,
+            'success' => true
+        ]);
+    }
     public function search($str){
         if($str) {
             $accounts = Account::where('account_number', 'LIKE', "%{$str}%")

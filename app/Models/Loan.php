@@ -41,5 +41,8 @@ class Loan extends Model
     {
         return $this->hasMany(Installment::class, 'loan_id');
     }
+    public function accounts(){
+        return $this->belongsToMany(Account::class,'loan_account_details');
+    }
     use HasFactory;
 }

@@ -91,7 +91,7 @@ class LoanController extends Controller
         ]);
     }
     public function showOne($id){
-        $loan = Loan::with(['installments'])->where('id', $id)->first();
+        $loan = Loan::with(['accounts'])->where('id', $id)->first();
         if ($loan) return response()->json([
             'loan' => $loan,
             'success' => true
