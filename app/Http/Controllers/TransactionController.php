@@ -28,7 +28,7 @@ class TransactionController extends Controller
             $fundAccount = $this->getFundAccount($validated['fund_account_id']);
 
             // Step 3: Perform transaction-specific logic
-            $this->handleTransactionType($validated['type'], $account, $fundAccount, $validated['amount'],$validated['installment_id'] ?? null);
+            $this->handleTransactionType($validated['type'], $account, $fundAccount, $validated['amount'],$validated['installment_id'] ?? null,$validated['loan_id'] ?? null);
 //
 //            // Step 4: Save the transaction
             $transaction = $this->createTransaction($validated);
@@ -36,7 +36,7 @@ class TransactionController extends Controller
 //            // Step 5: Commit the transaction
             DB::commit();
 //
-            return $this->successResponse('تراکنش جدیدی با موفقیت اضافه شد.'.$transaction, 201);
+            return $this->successResponse('تراکنش جدیدی با موفقیت اضافه شد.', 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->errorResponse('خطایی در انجام تراکنش رخ داد! ' . $e->getMessage());
@@ -53,7 +53,7 @@ class TransactionController extends Controller
         return FundAccount::findOrFail($fundAccountId);
     }
 
-    private function handleTransactionType($type, $account, $fundAccount, $amount,$installment_id=null)
+    private function handleTransactionType($type, $account, $fundAccount, $amount,$installment_id=null,$loan=null)
     {
         switch ($type) {
             case Transaction::TYPE_INSTALLMENT:
@@ -74,6 +74,12 @@ class TransactionController extends Controller
             }
             break;
             case Transaction::TYPE_LOAN_PAYMENT:
+                try {
+                    $this->updatePlusBalances($account, $fundAccount, $amount,$loan);
+                } catch (\Exception $e) {
+                    throw new \Exception('نوع تراکنش نامعتبذ است.'.$e->getMessage());
+                }
+                break;
             case Transaction::TYPE_DEPOSIT:
                 try {
                     $this->updatePlusBalances($account, $fundAccount, $amount);
@@ -90,10 +96,10 @@ class TransactionController extends Controller
     private function updateMinusBalances($account, $fundAccount, $amount,$installment_id=null)
     {
         if ($installment_id != null){
-            $loan_id = Installment::where('id',$installment_id)->select('loan_id')->first();
+            $loan_id = Installment::where('id',$installment_id)->value('loan_id');
             $payment = LoanAccountDetail::where('loan_id',$loan_id)->where('account_id',$account->id)->first();
              if (!$payment) {
-            throw new \Exception("No payment record found for loan and account.");
+            throw new \Exception("No payment record found for loan and account.".$loan_id);
         }
             $payment->paid_amount += (int)$amount;
             $payment->remained_amount -= (int)$amount;
@@ -111,8 +117,13 @@ class TransactionController extends Controller
         $fundAccount->save();
     }
 //az hesabe fund kam mishe
-    private function updatePlusBalances($account, $fundAccount, $amount)
+    private function updatePlusBalances($account, $fundAccount, $amount,$pay_loan=null)
     {
+        if ($pay_loan != null){
+           $loan = LoanAccountDetail::where('account_id',$account->id)->where('loan_id',$pay_loan)->first();
+           $loan->paid_by_fund = true;
+           $loan->save();
+        }
         $fundAccount->balance -= (int)$amount;
         $account->balance += (int)$amount;
 

@@ -19,6 +19,8 @@ return new class extends Migration
             $table->foreignId('account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->decimal('paid_amount',10,2)->nullable(false);
             $table->decimal('remained_amount',10,2)->nullable(false);
+            $table->boolean('paid_by_fund')->default(false);
+            $table->boolean('fee_is_paid')->default(false);
             $table->timestamps();
         });
     }

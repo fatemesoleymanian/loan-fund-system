@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoanAccountDetailRequest;
 use App\Models\LoanAccountDetail;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -11,23 +12,23 @@ class LoanAccountDetailController extends Controller
 {
     public function create(LoanAccountDetailRequest $request){
         DB::beginTransaction();
-
         try {
             $request->validated();
-            LoanAccountDetail::where('loan_id',$request->loan_id)->delete();
+
+             LoanAccountDetail::where('loan_id',$request->loan_id)->delete();
+
             foreach ($request->account_ids as $acc) {
                 LoanAccountDetail::create([
                     'loan_id' => $request->loan_id,
                     'account_id' => $acc['value'],
                     'remained_amount' => $request->remained_amount,
-                    'paid_amount' => $request->paid_amount
+                    'paid_amount' => $request->paid_amount,
+                    'paid_by_fund' => false,
                 ]);
             }
             DB::commit();
-            return response()->json([
-                'msg' => 'اطلاعات با موفقیت اضافه شد. .',
-                'success' => true
-            ], 201);
+            return TransactionController::successResponse('اطلاعات با موفقیت اضافه شد. ',201);
+
         }catch (\Exception $e){
             DB::rollBack();
             TransactionController::errorResponse($e->getMessage());
@@ -40,7 +41,9 @@ class LoanAccountDetailController extends Controller
             'loan_id' => $request->loan_id,
             'account_id' => $request->account_id,
             'remained_amount' => $request->remained_amount,
-            'paid_amount' => $request->paid_amount
+            'paid_amount' => $request->paid_amount,
+            'paid_by_fund' => false,
+
         ]);
 
         if ($loanAccDetails) return response()->json([
