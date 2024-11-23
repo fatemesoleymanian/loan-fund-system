@@ -64,6 +64,17 @@ class AccountController extends Controller
             'success' => false
         ]);
     }
+    public function showOneWithMonthlyCharge($id){
+        $account = Account::with(['monthlyCharges'])->where('id', $id)->first();
+        if ($account) return response()->json([
+            'account' => $account,
+            'success' => true
+        ]);
+        else return response()->json([
+            'msg' => 'خطا در پیدا کردن شماره حساب',
+            'success' => false
+        ]);
+    }
     public function showAll(){
         $accounts = Account::with(['loans','member','monthlyCharges'])->get();
         return response()->json([

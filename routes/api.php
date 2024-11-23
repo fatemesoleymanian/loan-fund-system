@@ -52,6 +52,7 @@ Route::prefix('/account')->group(function (){
     Route::get('/list',[AccountController::class,'showList']);
     Route::get('/search={str}',[AccountController::class,'search']);
     Route::get('/{id}',[AccountController::class,'showOne']);
+    Route::get('/monthly_charge/{id}',[AccountController::class,'showOneWithMonthlyCharge']);
     Route::post('/',[AccountController::class,'create']);
     Route::put('/',[AccountController::class,'update']);
     Route::post('/delete',[AccountController::class,'destroy']);
@@ -100,8 +101,9 @@ Route::prefix('/monthly_charge_member')->group(function (){
 });
 Route::prefix('/transaction')->group(function (){
         Route::get('/',[TransactionController::class,'showAll']);
-        Route::get('/{acc_id}',[TransactionController::class,'showAllByAccount']);
-        Route::get('/',[TransactionController::class,'showAllByType']);
+        Route::get('/account',[TransactionController::class,'showAllByAccount']);
+        Route::get('/type',[TransactionController::class,'showAllByType']);
+        Route::get('/acc/{acc_id}/chrg/{charg_id}',[TransactionController::class,'showByAccAndCharge']);
         Route::get('/search',[TransactionController::class,'search']);
         Route::get('/{id}',[TransactionController::class,'showOne']);
         Route::post('/',[TransactionController::class,'create']);

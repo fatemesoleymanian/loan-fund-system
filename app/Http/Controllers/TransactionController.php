@@ -34,7 +34,7 @@ class TransactionController extends Controller
 //            // Step 5: Commit the transaction
             DB::commit();
 //
-            return $this->successResponse('تراکنش جدیدی با موفقیت اضافه شد.', 201);
+            return $this->successResponse('تراکنش جدیدی با موفقیت اضافه شد.'.$transaction, 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->errorResponse('خطایی در انجام تراکنش رخ داد! ' . $e->getMessage());
@@ -56,7 +56,6 @@ class TransactionController extends Controller
         switch ($type) {
             case Transaction::TYPE_MONTHLY_PAYMENT:
             case Transaction::TYPE_INSTALLMENT:
-            case Transaction::TYPE_LOAN_PAYMENT:
             case Transaction::TYPE_PENALTY:
             case Transaction::TYPE_FEE:
             case Transaction::TYPE_WITHDRAW:
@@ -66,15 +65,16 @@ class TransactionController extends Controller
                 throw new \Exception('Invalid transaction type.'.$e->getMessage());
             }
             break;
+            case Transaction::TYPE_LOAN_PAYMENT:
             case Transaction::TYPE_DEPOSIT:
                 try {
                     $this->updatePlusBalances($account, $fundAccount, $amount);
                 } catch (\Exception $e) {
-                    throw new \Exception('Invalid transaction type.'.$e->getMessage());
+                    throw new \Exception('نوع تراکنش نامعتبذ است.'.$e->getMessage());
                 }
                 break;
             default:
-                throw new \Exception('Invalid transaction type.');
+                throw new \Exception('نوع تراکنش نامعتبذ است.');
         }
     }
 
@@ -86,7 +86,7 @@ class TransactionController extends Controller
 
         $minimumBalance = 10000; // Example minimum balance
         if ($account->balance < $minimumBalance) {
-            throw new \Exception('Fund account balance cannot go below the minimum limit.');
+            throw new \Exception('حداقل موجودی حساب!.');
         }
 
         $account->save();
@@ -100,7 +100,7 @@ class TransactionController extends Controller
 
         $minimumBalance = 10000; // Example minimum balance
         if ($fundAccount->balance < $minimumBalance) {
-            throw new \Exception('Fund account balance cannot go below the minimum limit.');
+            throw new \Exception('حداقل موجودی حساب صندوق!.');
         }
 
         $account->save();
@@ -199,15 +199,23 @@ class TransactionController extends Controller
             'success' => false
         ]);
     }
-    public function showAllByAccount($acc_id){
-        $transactions = Transaction::where('account_id',$acc_id)->with(['monthlyCharge','installment','account','fundAccount'])->get();
+    public function showAllByAccount(Request $request){
+        $transactions = Transaction::where('account_id',$request->account_id)->with(['monthlyCharge','installment','account','fundAccount'])->get();
         return response()->json([
             'transactions' => $transactions,
             'success' => true
         ]);
     }
-    public function showAll(){
+    public function showAll(): \Illuminate\Http\JsonResponse
+    {
         $transactions = Transaction::with(['monthlyCharge','installment','account','fundAccount'])->get();
+        return response()->json([
+            'transactions' => $transactions,
+            'success' => true
+        ]);
+    }
+    public function showByAccAndCharge($acc_id,$charg_id){
+        $transactions = Transaction::with( ['fundAccount'])->where('account_id',$acc_id)->where('monthly_charge_id',$charg_id)->get();
         return response()->json([
             'transactions' => $transactions,
             'success' => true
@@ -268,7 +276,8 @@ class TransactionController extends Controller
         }
 
         // Execute the query with eager loading
-        $transactions = $query->with(['monthlyCharge', 'installment', 'account', 'fundAccount'])->get();
+//        $transactions = $query->with(['monthlyCharge', 'installment', 'account', 'fundAccount'])->get();
+        $transactions = $query->get();
 
         return response()->json([
             'transactions' => $transactions,

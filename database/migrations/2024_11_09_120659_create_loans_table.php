@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
 //            $table->foreignId('account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->decimal('principal_amount',10,2);
+            $table->decimal('fee',10,2)->default(4);
             $table->enum('type',['وام قرض الحسنه'])->default('وام قرض الحسنه');
             $table->integer('number_of_installments')->nullable(false);
             $table->boolean('status')->default(true);
