@@ -92,6 +92,9 @@ class TransactionController extends Controller
         if ($installment_id != null){
             $loan_id = Installment::where('id',$installment_id)->select('loan_id')->first();
             $payment = LoanAccountDetail::where('loan_id',$loan_id)->where('account_id',$account->id)->first();
+             if (!$payment) {
+            throw new \Exception("No payment record found for loan and account.");
+        }
             $payment->paid_amount += (int)$amount;
             $payment->remained_amount -= (int)$amount;
             $payment->save();
