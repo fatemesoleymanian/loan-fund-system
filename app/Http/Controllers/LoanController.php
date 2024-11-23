@@ -108,4 +108,11 @@ class LoanController extends Controller
             'success' => true
         ]);
     }
+    public function showOneWithInst($loan_id){
+        $installments = Installment::where('loan_id',$loan_id)->get();
+        return response()->json([
+            'installments' => $installments,
+            'success' => true
+        ]);
+    }
 }

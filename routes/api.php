@@ -53,6 +53,7 @@ Route::prefix('/account')->group(function (){
     Route::get('/search={str}',[AccountController::class,'search']);
     Route::get('/{id}',[AccountController::class,'showOne']);
     Route::get('/monthly_charge/{id}',[AccountController::class,'showOneWithMonthlyCharge']);
+    Route::get('/loan/{id}',[AccountController::class,'showOneWithLoan']);
     Route::post('/',[AccountController::class,'create']);
     Route::put('/',[AccountController::class,'update']);
     Route::post('/delete',[AccountController::class,'destroy']);
@@ -60,6 +61,7 @@ Route::prefix('/account')->group(function (){
 Route::prefix('/loan')->group(function (){
     Route::get('/',[LoanController::class,'showAll']);
     Route::get('/{id}',[LoanController::class,'showOne']);
+    Route::get('/with_inst/{loan_id}',[LoanController::class,'showOneWithInst']);
     Route::post('/',[LoanController::class,'create']);
     Route::put('/',[LoanController::class,'update']);
     Route::post('/delete',[LoanController::class,'destroy']);
@@ -104,6 +106,7 @@ Route::prefix('/transaction')->group(function (){
         Route::get('/account',[TransactionController::class,'showAllByAccount']);
         Route::get('/type',[TransactionController::class,'showAllByType']);
         Route::get('/acc/{acc_id}/chrg/{charg_id}',[TransactionController::class,'showByAccAndCharge']);
+        Route::get('/acc/{acc_id}/loan_inst/{loan_id}',[TransactionController::class,'showAccInstallmentsByLoan']);
         Route::get('/search',[TransactionController::class,'search']);
         Route::get('/{id}',[TransactionController::class,'showOne']);
         Route::post('/',[TransactionController::class,'create']);

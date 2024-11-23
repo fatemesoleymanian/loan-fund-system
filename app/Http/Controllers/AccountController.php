@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AccountRequest;
 use App\Models\Account;
+use App\Models\Installment;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -66,6 +67,17 @@ class AccountController extends Controller
     }
     public function showOneWithMonthlyCharge($id){
         $account = Account::with(['monthlyCharges'])->where('id', $id)->first();
+        if ($account) return response()->json([
+            'account' => $account,
+            'success' => true
+        ]);
+        else return response()->json([
+            'msg' => 'خطا در پیدا کردن شماره حساب',
+            'success' => false
+        ]);
+    }
+    public function showOneWithLoan($id){
+        $account = Account::with(['loans','loan_details'])->where('id', $id)->first();
         if ($account) return response()->json([
             'account' => $account,
             'success' => true

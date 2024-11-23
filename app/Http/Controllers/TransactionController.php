@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TransactionRequest;
 use App\Models\Account;
 use App\Models\FundAccount;
+use App\Models\Installment;
+use App\Models\LoanAccountDetail;
 use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -26,7 +28,7 @@ class TransactionController extends Controller
             $fundAccount = $this->getFundAccount($validated['fund_account_id']);
 
             // Step 3: Perform transaction-specific logic
-            $this->handleTransactionType($validated['type'], $account, $fundAccount, $validated['amount']);
+            $this->handleTransactionType($validated['type'], $account, $fundAccount, $validated['amount'],$validated['installment_id'] ?? null);
 //
 //            // Step 4: Save the transaction
             $transaction = $this->createTransaction($validated);
@@ -51,11 +53,17 @@ class TransactionController extends Controller
         return FundAccount::findOrFail($fundAccountId);
     }
 
-    private function handleTransactionType($type, $account, $fundAccount, $amount)
+    private function handleTransactionType($type, $account, $fundAccount, $amount,$installment_id=null)
     {
         switch ($type) {
-            case Transaction::TYPE_MONTHLY_PAYMENT:
             case Transaction::TYPE_INSTALLMENT:
+                try {
+                    $this->updateMinusBalances($account, $fundAccount, $amount,$installment_id);
+                } catch (\Exception $e) {
+                    throw new \Exception('Invalid transaction type.'.$e->getMessage());
+                }
+                break;
+            case Transaction::TYPE_MONTHLY_PAYMENT:
             case Transaction::TYPE_PENALTY:
             case Transaction::TYPE_FEE:
             case Transaction::TYPE_WITHDRAW:
@@ -79,8 +87,15 @@ class TransactionController extends Controller
     }
 
 //az hesabe member kam mishe
-    private function updateMinusBalances($account, $fundAccount, $amount)
+    private function updateMinusBalances($account, $fundAccount, $amount,$installment_id=null)
     {
+        if ($installment_id != null){
+            $loan_id = Installment::where('id',$installment_id)->select('loan_id')->first();
+            $payment = LoanAccountDetail::where('loan_id',$loan_id)->where('account_id',$account->id)->first();
+            $payment->paid_amount += (int)$amount;
+            $payment->remained_amount -= (int)$amount;
+            $payment->save();
+        }
         $account->balance -= (int)$amount;
         $fundAccount->balance += (int)$amount;
 
@@ -208,19 +223,28 @@ class TransactionController extends Controller
     }
     public function showAll(): \Illuminate\Http\JsonResponse
     {
-        $transactions = Transaction::with(['monthlyCharge','installment','account','fundAccount'])->get();
+        $transactions = Transaction::with(['monthlyCharge','installment','account','fundAccount'])->orderByDesc('id')->get();
         return response()->json([
             'transactions' => $transactions,
             'success' => true
         ]);
     }
     public function showByAccAndCharge($acc_id,$charg_id){
-        $transactions = Transaction::with( ['fundAccount'])->where('account_id',$acc_id)->where('monthly_charge_id',$charg_id)->get();
+        $transactions = Transaction::with(['fundAccount'])->where('account_id',$acc_id)->where('monthly_charge_id',$charg_id)->get();
         return response()->json([
             'transactions' => $transactions,
             'success' => true
         ]);
     }
+    public function showAccInstallmentsByLoan($acc_id,$loan_id){
+        $instalments = Installment::where('loan_id',$loan_id)->select('id')->get();
+        $transactions = Transaction::with(['fundAccount'])->where('account_id',$acc_id)
+            ->whereIn('installment_id',$instalments)->get();
+        return response()->json([
+            'transactions' => $transactions,
+            'success' => true
+        ]);
+}
     public function showAllByType(Request $request){
         $transactions = Transaction::where('type',$request->type)->with(['monthlyCharge','installment','account','fundAccount'])->get();
         return response()->json([

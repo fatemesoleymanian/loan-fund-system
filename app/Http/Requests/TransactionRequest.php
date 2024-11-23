@@ -24,8 +24,8 @@ class TransactionRequest extends FormRequest
             'amount' => 'required|numeric',
             'fund_account_id' => 'required|exists:fund_accounts,id',
             'description' => 'required',
-//            'monthly_charge_id' => 'exists:monthly_charges,id',
-//            'installment_id' => 'exists:installments,id',
+            'monthly_charge_id' => 'nullable|exists:monthly_charges,id',
+            'installment_id' => 'nullable|exists:installments,id',
             'type' => ['required' , 'in:' .implode(',',Transaction::getTransactionTypes())],
         ];
     }
@@ -35,8 +35,8 @@ class TransactionRequest extends FormRequest
             'account_id.required' => 'لطفا شماره حساب را وارد کنید!',
             'amount.required' => 'لطفا مبلغ را وارد کنید!',
             'fund_account_id.required' => 'لطفا صندوق را وارد کنید!',
-//            'monthly_charge_id.exists' => 'ماهیانه وجود ندارد!',
-//            'installment_id.exists' => 'قسط / وام وجود ندارد!',
+            'monthly_charge_id.exists' => 'ماهیانه وجود ندارد!',
+            'installment_id.exists' => 'قسط / وام وجود ندارد!',
             'type.in' => 'لطفا نوع تراکنش را وارد کنید!',
             'description.required' => 'لطفا توضیح تراکنش را وارد کنید!',
         ];

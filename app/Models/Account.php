@@ -20,9 +20,11 @@ class Account extends Model
     {
         return $this->belongsTo(Member::class, 'member_id');
     }
-    public  function loans()
-    {
-        return $this->hasMany(LoanAccountDetail::class, 'loan_id');
+    public function loans(){
+        return $this->belongsToMany(Loan::class,'loan_account_details');
+    }
+    public function loan_details(){
+        return $this->hasMany(LoanAccountDetail::class);
     }
     public  function monthlyCharges()
     {
