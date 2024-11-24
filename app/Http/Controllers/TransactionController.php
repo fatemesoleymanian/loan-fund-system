@@ -315,7 +315,7 @@ class TransactionController extends Controller
 
         // Execute the query with eager loading
 //        $transactions = $query->with(['monthlyCharge', 'installment', 'account', 'fundAccount'])->get();
-        $transactions = $query->get();
+        $transactions = $query->with(['monthlyCharge','installment','account','fundAccount'])->orderByDesc('id')->get();
 
         return response()->json([
             'transactions' => $transactions,
