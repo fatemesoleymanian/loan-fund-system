@@ -11,13 +11,13 @@ class FundAccountController extends Controller
     public function create(FundAccountRequest $request){
         $request->validated();
         $fundAccount = FundAccount::create([
-            'account_number' => $request->account_number,
             'name' => $request->name,
             'balance' => $request->balance,
-            'type' => $request->type
+            'total_balance' => $request->total_balance,
+            'fees' => $request->fees,
         ]);
         if ($fundAccount) return response()->json([
-            'msg' => 'صندوق جدیدی با موفقیت اضافه شد. .',
+            'msg' => 'صندوق با موفقیت اضافه شد. .',
             'success' => true
         ],201);
         else return response()->json([
@@ -31,10 +31,10 @@ class FundAccountController extends Controller
             'msg' => 'صندوق را انتخاب کنید.'
         ],400);
             $fundAccount = FundAccount::where('id', $request->id)->update([
-                'account_number' => $request->account_number,
+                'fees' => $request->fees,
                 'name' => $request->name,
                 'balance' => $request->balance,
-                'type' => $request->type
+                'total_balance' => $request->total_balance
             ]);
 
         if ($fundAccount) return response()->json([
@@ -62,9 +62,9 @@ class FundAccountController extends Controller
         ]);
     }
     public function showOne($id){
-        $fund_acc = FundAccount::where('id', $id)->first();
+        $fund_acc = FundAccount::with(['assets'])->where('id', $id)->first();
         if ($fund_acc) return response()->json([
-            'member' => $fund_acc,
+            'fund_account' => $fund_acc,
             'success' => true
         ]);
         else return response()->json([

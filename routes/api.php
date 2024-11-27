@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AssetController;
 use App\Http\Controllers\FundAccountController;
 use App\Http\Controllers\InstallmentController;
 use App\Http\Controllers\LoanAccountDetailController;
@@ -36,6 +37,13 @@ Route::prefix('/fund_account')->group(function (){
     Route::post('/',[FundAccountController::class,'create']);
     Route::put('/',[FundAccountController::class,'update']);
     Route::post('/delete',[FundAccountController::class,'destroy']);
+});
+Route::prefix('/asset')->group(function (){
+    Route::get('/',[AssetController::class,'showAll']);
+    Route::get('/{id}',[AssetController::class,'showOne']);
+    Route::post('/',[AssetController::class,'create']);
+    Route::put('/',[AssetController::class,'update']);
+    Route::post('/delete',[AssetController::class,'destroy']);
 });
 Route::prefix('/member')->group(function (){
     Route::get('/',[MemberController::class,'showAll']);

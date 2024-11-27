@@ -16,5 +16,9 @@ class FundAccount extends Model
     {
         return verta($val)->format('l d %B Y');
     }
+    public  function assets()
+    {
+        return $this->hasMany(Asset::class);
+    }
     use HasFactory;
 }

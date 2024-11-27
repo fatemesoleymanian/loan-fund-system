@@ -25,8 +25,9 @@ class FundAccountRequest extends FormRequest
     {
         return   [
             'name' => "required",
-            'balance' => "required",
-            'account_number' => "required",
+            'balance' => "required|numeric",
+            'total_balance' => "required|numeric",
+            'fees' => "required|numeric",
         ];
     }
     public function messages()
@@ -34,7 +35,8 @@ class FundAccountRequest extends FormRequest
         return [
             'name.required' => 'لطفا نام صندوق را وارد کنید!',
             'balance.required' => 'لطفا موجودی صندوق را وارد کنید!',
-            'account_number.required' => 'لطفا شماره حساب صندوق را وارد کنید!',
+            'total_balance.required' => 'لطفا موجودی کل صندوق را وارد کنید!',
+            'fees.required' => 'لطفا مجموع کارمزد را وارد کنید!',
         ];
     }
 }
