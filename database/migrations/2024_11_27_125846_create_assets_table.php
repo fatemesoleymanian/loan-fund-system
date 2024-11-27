@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('fund_accounts', function (Blueprint $table) {
+        Schema::create('assets', function (Blueprint $table) {
             $table->id();
-            $table->string('account_number')->unique()->nullable(false);
-            $table->string('name')->unique()->nullable(false);
-            $table->decimal('balance',10,2)->default(0);
-            $table->string('type')->default('قرض الحسنه');
+            $table->foreignId('fund_account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->string('title')->nullable(false);
+            $table->decimal('cost',10,2)->default(0)->nullable(true);
+            $table->text('description')->nullable(true);
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fund_accounts');
+        Schema::dropIfExists('assets');
     }
 };
