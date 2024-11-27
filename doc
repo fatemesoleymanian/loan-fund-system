@@ -1,0 +1,47 @@
+# 1. Entity: fund_accounts
+## Database Design
+Table Name: fund_accounts
+Columns:
+id: Primary key, auto-increment.
+name: Unique name of the fund account (required).
+balance: Current balance of the fund account, initialized to 0.00.
+fees: Total fees collected, initialized to 0.00.
+total_balance: Sum of balance and fees, initialized to 0.00.
+timestamps: Tracks creation and update times.
+Back-End Documentation
+Business Logic:
+The balance tracks the available funds in the account.
+fees accumulate any charges or deductions.
+total_balance ensures financial tracking by including fees in calculations.
+API Endpoints:
+GET /api/fund-accounts: List all fund accounts.
+POST /api/fund-accounts: Create a new fund account.
+PUT /api/fund-accounts/{id}: Update an existing fund account's details.
+DELETE /api/fund-accounts/{id}: Remove a fund account (if no dependent entities exist).
+Validation Rules:
+name: Required, unique.
+balance, fees, total_balance: Numeric, minimum 0.
+# 2. Entity: assets
+## Database Design
+Table Name: assets
+Columns:
+id: Primary key, auto-increment.
+fund_account_id: Foreign key referencing fund_accounts.id (on delete/update cascade).
+title: Name of the asset (required).
+cost: Monetary value of the asset (default 0.00).
+description: Additional details about the asset.
+timestamps: Tracks creation and update times.
+Back-End Documentation
+Business Logic:
+Assets are associated with a specific fund account to track the account’s owned resources.
+The cost represents the value of the asset, which affects the financial reporting of the fund account.
+A description allows for flexibility in detailing asset information.
+API Endpoints:
+GET /api/assets: List all assets.
+POST /api/assets: Add a new asset to a fund account.
+PUT /api/assets/{id}: Update an asset's details.
+DELETE /api/assets/{id}: Remove an asset.
+Validation Rules:
+fund_account_id: Required, exists in fund_accounts.
+title: Required.
+cost: Numeric, minimum 0.
