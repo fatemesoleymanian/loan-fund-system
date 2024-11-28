@@ -31,10 +31,10 @@ class Account extends Model
         return $this->belongsToMany(MonthlyCharge::class, 'monthly_charge_accounts');
     }
     public static function openAccounts(){
-
+         return self::where('is_open', true);
     }
     public static function closedAccounts(){
-
+             return self::where('is_open', false);
     }
     public static function splitAccountIds($accounts)
 {
