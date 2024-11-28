@@ -59,13 +59,15 @@ class AssetController extends Controller
         $fund_acc->save();
     }
     private function updateAccountBalance($request){
-        $number_of_accounts = Account::openAccounts()->count();
-        $decrease = round((int) $request->cost / (int) $number_of_accounts);
-        $accounts = Account::openAccounts()->get();
-        foreach ($accounts as $account){
-            Account::where('id',$account->id)->update([
-                'balance' => ($account->balance - $decrease)
-            ]);
+        $list_of_accounts = Account::splitAccountIds($request->accounts);
+        $decrease = round((int) $request->cost / (int) $list_of_accounts['count']);
+        $accounts = $list_of_accounts['formattedIds'];
+        foreach ($accounts as $id){
+            $account = Account::find($id);
+            if($account){
+                $account->balance -= $decrease;
+                $account->save();
+            }
         }
     }
 
