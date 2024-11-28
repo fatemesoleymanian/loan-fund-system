@@ -32,11 +32,7 @@ class FundAccountController extends Controller
             'msg' => 'صندوق را انتخاب کنید.'
         ],400);
             $fundAccount = FundAccount::where('id', $request->id)->update([
-                'fees' => $request->fees,
-                'name' => $request->name,
-                'balance' => $request->balance,
-                'total_balance' => $request->total_balance,
-                'expenses' => $request->expenses,
+                'name' => $request->name
             ]);
 
         if ($fundAccount) return response()->json([
