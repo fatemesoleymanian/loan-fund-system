@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AssetRequest;
+use App\Models\Account;
 use App\Models\Asset;
+use App\Models\FundAccount;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
 {
     public function create(AssetRequest $request){
         $request->validated();
+        $this->handleExpense($request);
         $asset = Asset::create([
             'title' => $request->title,
             'cost' => $request->cost,
@@ -24,6 +27,49 @@ class AssetController extends Controller
             'success' => false
         ],500);
     }
+    private function handleExpense($request){
+        switch ($request->money_source){
+            case Asset::NONE:
+                $this->handleNone($request);
+                break;
+            case Asset::BALANCE_SOURCE:
+                $this->handleBalanceSource($request);
+                break;
+            case Asset::FEE_SOURCE:
+            default:
+                throw new \Exception('منبع هزینه نامعتبر است.');
+        }
+    }
+    private function handleNone($request){
+        if ($request->isExpense){
+         $fund_acc = FundAccount::where('id',$request->fund_acc_id)->first();
+         $fund_acc->expenses += $request->cost;
+         $fund_acc->save();
+        }
+    }
+    private function handleBalanceSource($request){
+        $this->handleExpense($request);
+        $this->updateAccountBalance($request);
+        $this->updateFundAccBalance($request);
+    }
+    private function updateFundAccBalance($request){
+        $fund_acc = FundAccount::where('id',$request->fund_acc_id)->first();
+        $fund_acc->balance -= $request->cost;
+        $fund_acc->total_balance -= $request->cost;
+        $fund_acc->save();
+    }
+    private function updateAccountBalance($request){
+        $number_of_accounts = Account::openAccounts()->count();
+        $decrease = round((int) $request->cost / (int) $number_of_accounts);
+        $accounts = Account::openAccounts()->get();
+        foreach ($accounts as $account){
+            Account::where('id',$account->id)->update([
+                'balance' => ($account->balance - $decrease)
+            ]);
+        }
+    }
+
+
     public function update(AssetRequest $request){
         $request->validated();
         if (!$request->id) return response()->json([

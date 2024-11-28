@@ -30,5 +30,14 @@ class Account extends Model
     {
         return $this->belongsToMany(MonthlyCharge::class, 'monthly_charge_accounts');
     }
+    public static function openAccounts(){
+
+    }
+    public static function closedAccounts(){
+
+    }
+    public static function splitAccountIds($accoutns){
+
+    }
     use HasFactory;
 }

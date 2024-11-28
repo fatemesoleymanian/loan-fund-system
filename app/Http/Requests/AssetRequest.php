@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Asset;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AssetRequest extends FormRequest
@@ -26,6 +27,7 @@ class AssetRequest extends FormRequest
         return   [
             'title' => "required",
             'cost' => "nullable|numeric",
+            'money_source' => ['required' , 'in:' .implode(',',Asset::getMoneySource())],
         ];
     }
     public function messages()
@@ -33,6 +35,7 @@ class AssetRequest extends FormRequest
         return [
             'title.required' => 'لطفا نام اثاثیه را وارد کنید!',
             'cost.numeric' => 'قیمت صحیح نیست!',
+            'money_source.in' => 'منبع برداشت هزینه صحیح نیست!',
         ];
     }
 }
