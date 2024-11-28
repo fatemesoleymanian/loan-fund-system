@@ -28,6 +28,7 @@ class FundAccountRequest extends FormRequest
             'balance' => "required|numeric",
             'total_balance' => "required|numeric",
             'fees' => "required|numeric",
+            'expenses' => "required|numeric",
         ];
     }
     public function messages()
@@ -37,6 +38,7 @@ class FundAccountRequest extends FormRequest
             'balance.required' => 'لطفا موجودی صندوق را وارد کنید!',
             'total_balance.required' => 'لطفا موجودی کل صندوق را وارد کنید!',
             'fees.required' => 'لطفا مجموع کارمزد را وارد کنید!',
+            'expenses.required' => 'لطفا مجموع کارمزد را وارد کنید!',
         ];
     }
 }

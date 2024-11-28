@@ -16,5 +16,17 @@ class Asset extends Model
     {
         return verta($val)->format('l d %B Y');
     }
+    const FEE_SOURCE = 'از کارمزد';
+    const BALANCE_SOURCE = 'از موجودی';
+    const NONE = 'از هیچکدام';
+
+    public static function getMoneySource()
+    {
+        return [
+            self::FEE_SOURCE,
+            self::BALANCE_SOURCE,
+            self::NONE,
+        ];
+    }
     use HasFactory;
 }

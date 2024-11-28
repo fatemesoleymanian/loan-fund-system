@@ -11,7 +11,6 @@ class AssetController extends Controller
     public function create(AssetRequest $request){
         $request->validated();
         $asset = Asset::create([
-            'fund_account_id' => $request->fund_account_id,
             'title' => $request->title,
             'cost' => $request->cost,
             'description' => $request->description,
@@ -31,7 +30,6 @@ class AssetController extends Controller
             'msg' => 'اثاثیه را انتخاب کنید.'
         ],400);
         $asset = Asset::where('id', $request->id)->update([
-            'fund_account_id' => $request->fund_account_id,
             'title' => $request->title,
             'cost' => $request->cost,
             'description' => $request->description,

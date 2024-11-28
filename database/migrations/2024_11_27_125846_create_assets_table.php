@@ -15,10 +15,11 @@ return new class extends Migration
     {
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('fund_account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('title')->nullable(false);
             $table->decimal('cost',10,2)->default(0)->nullable(true);
+            $table->enum('money_source',['از کارمزد','از موجودی','از هیچکدام'])->nullable(false);//az fees bardashtim ya balance ya asan barnmidari
             $table->text('description')->nullable(true);
+            $table->string('accounts')->nullable(true);
             $table->timestamps();
         });
     }

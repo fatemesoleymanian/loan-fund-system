@@ -13,13 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('fund_accounts', function (Blueprint $table) {
+        Schema::create('charities', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique()->nullable(false);
-            $table->decimal('balance',10,2)->default(0);
-            $table->decimal('fees',10,2)->default(0);
-            $table->decimal('total_balance',10,2)->default(0);
-            $table->decimal('expenses',10,2)->default(0);
+            $table->decimal('amount',10,2)->nullable(false);
+            $table->enum('money_source',['از کارمزد','از موجودی','از هیچکدام'])->nullable(false);//az fees bardashtim ya balance ya asan barnmidari
+            $table->string('description')->nullable(true);
+            $table->string('accounts')->nullable(true);
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fund_accounts');
+        Schema::dropIfExists('charities');
     }
 };

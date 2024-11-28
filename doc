@@ -26,7 +26,6 @@ balance, fees, total_balance: Numeric, minimum 0.
 Table Name: assets
 Columns:
 id: Primary key, auto-increment.
-fund_account_id: Foreign key referencing fund_accounts.id (on delete/update cascade).
 title: Name of the asset (required).
 cost: Monetary value of the asset (default 0.00).
 description: Additional details about the asset.

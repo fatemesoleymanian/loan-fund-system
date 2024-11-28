@@ -13,7 +13,7 @@ class AssetRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,6 @@ class AssetRequest extends FormRequest
     public function rules()
     {
         return   [
-            'fund_account_id' => "required|exists:fund_account,id",
             'title' => "required",
             'cost' => "nullable|numeric",
         ];
@@ -32,8 +31,6 @@ class AssetRequest extends FormRequest
     public function messages()
     {
         return [
-            'fund_account_id.required' => 'لطفا صندوق را وارد کنید!',
-            'fund_account_id.exists' => 'صندوق وجود ندارد!',
             'title.required' => 'لطفا نام اثاثیه را وارد کنید!',
             'cost.numeric' => 'قیمت صحیح نیست!',
         ];

@@ -15,6 +15,7 @@ class FundAccountController extends Controller
             'balance' => $request->balance,
             'total_balance' => $request->total_balance,
             'fees' => $request->fees,
+            'expenses' => $request->expenses,
         ]);
         if ($fundAccount) return response()->json([
             'msg' => 'صندوق با موفقیت اضافه شد. .',
@@ -34,7 +35,8 @@ class FundAccountController extends Controller
                 'fees' => $request->fees,
                 'name' => $request->name,
                 'balance' => $request->balance,
-                'total_balance' => $request->total_balance
+                'total_balance' => $request->total_balance,
+                'expenses' => $request->expenses,
             ]);
 
         if ($fundAccount) return response()->json([
@@ -62,7 +64,7 @@ class FundAccountController extends Controller
         ]);
     }
     public function showOne($id){
-        $fund_acc = FundAccount::with(['assets'])->where('id', $id)->first();
+        $fund_acc = FundAccount::where('id', $id)->first();
         if ($fund_acc) return response()->json([
             'fund_account' => $fund_acc,
             'success' => true
