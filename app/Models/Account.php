@@ -36,8 +36,23 @@ class Account extends Model
     public static function closedAccounts(){
 
     }
-    public static function splitAccountIds($accoutns){
+    public static function splitAccountIds($accounts)
+{
+    // Explode the string into an array of IDs
+    $ids = explode(',', $accounts);
 
-    }
+    // Map each ID into an associative array with 'id' as the key
+    $formattedIds = array_map(fn($id) => ['id' => (int) trim($id)], $ids);
+
+    // Get the count of IDs
+    $count = count($ids);
+
+    // Return the formatted array and the count
+    return [
+        'formattedIds' => $formattedIds,
+        'count' => $count
+    ];
+}
+
     use HasFactory;
 }
