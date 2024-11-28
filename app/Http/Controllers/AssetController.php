@@ -7,25 +7,36 @@ use App\Models\Account;
 use App\Models\Asset;
 use App\Models\FundAccount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AssetController extends Controller
 {
     public function create(AssetRequest $request){
-        $request->validated();
-        $this->handleExpense($request);
-        $asset = Asset::create([
-            'title' => $request->title,
-            'cost' => $request->cost,
-            'description' => $request->description,
-        ]);
-        if ($asset) return response()->json([
-            'msg' => 'اثاثیه با موفقیت اضافه شد. .',
-            'success' => true
-        ],201);
-        else return response()->json([
-            'msg' => 'خطایی در ایجاد اثاثیه رخ داد!',
-            'success' => false
-        ],500);
+        DB::beginTransaction();
+        try {
+            $request->validated();
+            $this->handleExpense($request);
+            $asset = Asset::create([
+                'title' => $request->title,
+                'cost' => $request->cost,
+                'money_source' => $request->money_source,
+                'accounts' => $request->accounts,
+                'description' => $request->description,
+            ]);
+            DB::commit();
+            if ($asset) return response()->json([
+                'msg' => 'اثاثیه با موفقیت اضافه شد. .',
+                'success' => true
+            ], 201);
+            else return response()->json([
+                'msg' => 'خطایی در ایجاد اثاثیه رخ داد!',
+                'success' => false
+            ], 500);
+
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return TransactionController::errorResponse('خطایی در ایجاد اثاث رخ داد! ' . $e->getMessage());
+        }
     }
     private function handleExpense($request){
         switch ($request->money_source){
@@ -36,6 +47,8 @@ class AssetController extends Controller
                 $this->handleBalanceSource($request);
                 break;
             case Asset::FEE_SOURCE:
+                $this->updateFundAccountFees($request);
+                break;
             default:
                 throw new \Exception('منبع هزینه نامعتبر است.');
         }
@@ -70,16 +83,21 @@ class AssetController extends Controller
             }
         }
     }
+    private function updateFundAccountFees($request){
+        $fund_acc = FundAccount::where('id',$request->fund_acc_id)->first();
+        $fund_acc->expenses += $request->cost;
+        $fund_acc->fees -= $request->cost;
+        $fund_acc->save();
+
+    }
 
 
-    public function update(AssetRequest $request){
-        $request->validated();
+    public function update(Request $request){
         if (!$request->id) return response()->json([
             'msg' => 'اثاثیه را انتخاب کنید.'
         ],400);
         $asset = Asset::where('id', $request->id)->update([
             'title' => $request->title,
-            'cost' => $request->cost,
             'description' => $request->description,
         ]);
 
@@ -93,17 +111,19 @@ class AssetController extends Controller
         ],500);
 
     }
-    public function destroy(Request $request){
-        $asset = Asset::where('id', $request->id)->delete();
-        return response()->json([
-            'msg' => 'اثاثیه با موفقیت حذف گردید.',
-            'success' => true
-        ]);
-    }
+    //BAYAD AZ EXPENSES KAM SHE BE MONEY_SOURCE EZFE SHE
+//    public function destroy(Request $request){
+//        $asset = Asset::where('id', $request->id)->delete();
+//        return response()->json([
+//            'msg' => 'اثاثیه با موفقیت حذف گردید.',
+//            'success' => true
+//        ]);
+//    }
     public function showAll(){
         $assets = Asset::all();
         return response()->json([
             'assets' => $assets,
+            'costs'=>$costs,
             'success' => true
         ]);
     }
