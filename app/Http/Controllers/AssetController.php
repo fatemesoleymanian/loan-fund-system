@@ -121,6 +121,7 @@ class AssetController extends Controller
 //    }
     public function showAll(){
         $assets = Asset::all();
+        $costs = Asset::sum('cost');
         return response()->json([
             'assets' => $assets,
             'costs'=>$costs,
