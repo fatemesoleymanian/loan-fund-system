@@ -92,25 +92,25 @@ class AssetController extends Controller
     }
 
 
-    public function update(Request $request){
-        if (!$request->id) return response()->json([
-            'msg' => 'اثاثیه را انتخاب کنید.'
-        ],400);
-        $asset = Asset::where('id', $request->id)->update([
-            'title' => $request->title,
-            'description' => $request->description,
-        ]);
-
-        if ($asset) return response()->json([
-            'msg' => 'اثاثیه با موفقیت آپدیت شد. .',
-            'success' => true
-        ],201);
-        else return response()->json([
-            'msg' => 'خطایی در آپدیت اثاثیه رخ داد!',
-            'success' => false
-        ],500);
-
-    }
+//    public function update(Request $request){
+//        if (!$request->id) return response()->json([
+//            'msg' => 'اثاثیه را انتخاب کنید.'
+//        ],400);
+//        $asset = Asset::where('id', $request->id)->update([
+//            'title' => $request->title,
+//            'description' => $request->description,
+//        ]);
+//
+//        if ($asset) return response()->json([
+//            'msg' => 'اثاثیه با موفقیت آپدیت شد. .',
+//            'success' => true
+//        ],201);
+//        else return response()->json([
+//            'msg' => 'خطایی در آپدیت اثاثیه رخ داد!',
+//            'success' => false
+//        ],500);
+//
+//    }
     //BAYAD AZ EXPENSES KAM SHE BE MONEY_SOURCE EZFE SHE
 //    public function destroy(Request $request){
 //        $asset = Asset::where('id', $request->id)->delete();

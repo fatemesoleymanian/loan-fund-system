@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\CharityController;
 use App\Http\Controllers\FundAccountController;
 use App\Http\Controllers\InstallmentController;
 use App\Http\Controllers\LoanAccountDetailController;
@@ -42,8 +43,15 @@ Route::prefix('/asset')->group(function (){
     Route::get('/',[AssetController::class,'showAll']);
     Route::get('/{id}',[AssetController::class,'showOne']);
     Route::post('/',[AssetController::class,'create']);
-    Route::put('/',[AssetController::class,'update']);
-    Route::post('/delete',[AssetController::class,'destroy']);
+//    Route::put('/',[AssetController::class,'update']);
+//    Route::post('/delete',[AssetController::class,'destroy']);
+});
+Route::prefix('/charity')->group(function (){
+    Route::get('/',[CharityController::class,'showAll']);
+    Route::get('/{id}',[CharityController::class,'showOne']);
+    Route::post('/',[CharityController::class,'create']);
+//    Route::put('/',[CharityController::class,'update']);
+//    Route::post('/delete',[CharityController::class,'destroy']);
 });
 Route::prefix('/member')->group(function (){
     Route::get('/',[MemberController::class,'showAll']);
