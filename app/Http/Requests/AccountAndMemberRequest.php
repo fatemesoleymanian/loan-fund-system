@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AccountRequest extends FormRequest
+class AccountAndMemberRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,11 +25,14 @@ class AccountRequest extends FormRequest
     {
         return   [
             'member_id' => "required|exists:members,id",
-            'balance' => "nullable|numeric",
+            'balance' => "required|numeric",
             'stock_units' => "required",
             'member_name' => "required",
             'status' => "required",
             'is_open' => "required",
+            'full_name' => "required",
+            'mobile_number' => "required",
+            'telephone_number' => "required",
         ];
     }
     public function messages()
@@ -41,6 +44,9 @@ class AccountRequest extends FormRequest
             'member_name.required' => 'لطفا نام عضو مربوطه را وارد کنید!',
             'status.required' => 'لطفا وضعیت حساب را وارد کنید!',
             'is_open.required' => 'لطفا باز/بسته بودن حساب را وارد کنید!',
+            'full_name.required' => 'لطفا نام عضو را وارد کنید!',
+            'mobile_number.required' => 'لطفا شماره تلفن همراه عضو را وارد کنید!',
+            'telephone_number.required' => 'لطفا شماره تلفن عضو را وارد کنید!',
         ];
     }
 }

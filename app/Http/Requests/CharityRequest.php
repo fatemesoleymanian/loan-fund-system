@@ -34,7 +34,7 @@ class CharityRequest extends FormRequest
     {
         return [
             'description.required' => 'لطفا توضیح را وارد کنید!',
-            'amount.numeric' => 'قیمت صحیح نیست!',
+            'amount.numeric' => 'هزینه صحیح نیست!',
             'money_source.in' => 'منبع برداشت هزینه صحیح نیست!',
         ];
     }

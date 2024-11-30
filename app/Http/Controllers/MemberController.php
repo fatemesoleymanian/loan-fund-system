@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class MemberController extends Controller
 {
-    public function create(MemberRequest $request){
+    public function create($request){
         $request->validated();
         $member = Member::create([
             'full_name' => $request->full_name,
@@ -17,20 +17,20 @@ class MemberController extends Controller
             'telephone_number' => $request->telephone_number,
             'father_name' => $request->father_name,
             'fax' => $request->fax,
-            'stock_units' => $request->stock_units,
             'address' => $request->address
         ]);
-        if ($member) return response()->json([
-            'member' => $member,
-            'msg' => 'عضو جدیدی با موفقیت اضافه شد. .',
-            'success' => true
-        ],201);
-        else return response()->json([
-            'msg' => 'خطایی در ایجاد عضو رخ داد!',
-            'success' => false
-        ],500);
+        return $member;
+//        if ($member) return response()->json([
+//            'member' => $member,
+//            'msg' => 'عضو جدیدی با موفقیت اضافه شد. .',
+//            'success' => true
+//        ],201);
+//        else return response()->json([
+//            'msg' => 'خطایی در ایجاد عضو رخ داد!',
+//            'success' => false
+//        ],500);
     }
-    public function update(MemberRequest $request){
+    public function update(MemberRequest $request,bool $needJsonRes=true){
         $request->validated();
         $member = Member::where('id',$request->id)->update([
             'full_name' => $request->full_name,
@@ -38,28 +38,26 @@ class MemberController extends Controller
             'telephone_number' => $request->telephone_number,
             'father_name' => $request->father_name,
             'fax' => $request->fax,
-            'stock_units' => $request->stock_units,
             'address' => $request->address,
-//            'join_date' => $request->join_date
         ]);
-        if ($member) return response()->json([
+        if ($member) return $needJsonRes ? response()->json([
             'member' => $member,
             'msg' => 'عضو با موفقیت آپدیت شد. .',
             'success' => true
-        ],201);
+        ],201) : $member;
         else return response()->json([
             'msg' => 'خطایی در آپدیت عضو رخ داد!',
             'success' => false
         ],500);
     }
-    public function destroy(Request $request){
-        return Member::where('id', $request->id)->delete();
-//        return response()->json([
+//    public function destroy(Request $request){
+//        return Member::where('id', $request->id)->delete();
+////        return response()->json([
 //            'member' => $member,
 //            'msg' => 'عضو با موفقیت حذف گردید.',
 //            'success' => true
 //        ]);
-    }
+//    }
     public function showOne($id){
         $member = Member::with(['account'])->where('id', $id)->first();
         if ($member) return response()->json([
@@ -100,13 +98,5 @@ class MemberController extends Controller
             ]);
         }
     }
-    public function updateStocks(Request $request){
-        foreach ($request->member_ids as $id){
-            Member::where('id',$id)->update(['stock_units' => $request->stock_units]);
-        }
-        return response()->json([
-            'msg' => 'آپدیت با موفقیت انجام شد.',
-            'success' => true
-        ]);
-    }
+
 }
