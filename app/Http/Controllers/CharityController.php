@@ -22,6 +22,13 @@ class CharityController extends Controller
                 'accounts' => $request->accounts,
                 'description' => $request->description,
             ]);
+            $withdrawObj = [
+                'amount'=>$request->amount,
+                'account_id'=> null,
+                'description'=>$request->description
+            ];
+            $withdrawController = new WithdrawController();
+            $withdraw = $withdrawController->createLog($withdrawObj);
             DB::commit();
             if ($charity) return response()->json([
                 'msg' => ' با موفقیت اضافه شد.',

@@ -24,10 +24,10 @@ class AccountAndMemberRequest extends FormRequest
     public function rules()
     {
         return   [
-            'member_id' => "required|exists:members,id",
+//            'member_id' => "required|exists:members,id",
             'balance' => "required|numeric",
             'stock_units' => "required",
-            'member_name' => "required",
+//            'member_name' => "required",
             'status' => "required",
             'is_open' => "required",
             'full_name' => "required",
@@ -38,10 +38,10 @@ class AccountAndMemberRequest extends FormRequest
     public function messages()
     {
         return [
-            'member_id.required' => 'لطفا عضو مربوطه را انتخاب کنید!',
+//            'member_id.required' => 'لطفا عضو مربوطه را انتخاب کنید!',
             'balance.required' => 'لطفا موجودی حساب را وارد کنید!',
             'stock_units.required' => 'لطفا تعداد سهم را وارد کنید!',
-            'member_name.required' => 'لطفا نام عضو مربوطه را وارد کنید!',
+//            'member_name.required' => 'لطفا نام عضو مربوطه را وارد کنید!',
             'status.required' => 'لطفا وضعیت حساب را وارد کنید!',
             'is_open.required' => 'لطفا باز/بسته بودن حساب را وارد کنید!',
             'full_name.required' => 'لطفا نام عضو را وارد کنید!',

@@ -23,6 +23,13 @@ class AssetController extends Controller
                 'accounts' => $request->accounts,
                 'description' => $request->description,
             ]);
+            $withdrawObj = [
+                'amount'=>$request->cost,
+                'account_id'=> null,
+                'description'=>$request->description
+            ];
+            $withdrawController = new WithdrawController();
+            $withdraw = $withdrawController->createLog($withdrawObj);
             DB::commit();
             if ($asset) return response()->json([
                 'msg' => 'اثاثیه با موفقیت اضافه شد. .',

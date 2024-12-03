@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DepositRequest;
 use App\Models\Account;
 use App\Models\Deposit;
 use App\Models\FundAccount;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 class DepositController extends Controller
 {
 
-    public function create(Request $request){
+    public function create(DepositRequest $request){
         DB::beginTransaction();
         try {
             $request->validated();
@@ -24,6 +25,7 @@ class DepositController extends Controller
            ]);
             DB::commit();
             return response()->json([
+                'deposit'=>$deposit,
                 'msg' => ' با موفقیت واریز شد.',
                 'success' => true
             ], 201);
@@ -44,4 +46,32 @@ class DepositController extends Controller
         $account->balance += $request->amount;
         $account->save();
     }
+    public function createLog($request){
+        DB::beginTransaction();
+        try {
+            $deposit = Deposit::create([
+                'amount'=>$request->amount,
+                'account_id'=>$request->account_id,
+                'description'=>$request->description
+            ]);
+            DB::commit();
+            return response()->json([
+                'deposit'=>$deposit,
+                'msg' => ' با موفقیت واریز شد.',
+                'success' => true
+            ], 201);
+
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return TransactionController::errorResponse('خطایی در واریز رخ داد! ' . $e->getMessage());
+        }
+    }
+    public function showAll(){
+        $deposits = Deposit::all();
+        return response()->json([
+            'deposits' => $deposits,
+            'success' => true
+        ]);
+    }
+
 }

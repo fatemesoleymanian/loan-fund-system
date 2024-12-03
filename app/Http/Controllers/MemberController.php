@@ -9,28 +9,28 @@ use Illuminate\Http\Request;
 
 class MemberController extends Controller
 {
-    public function create($request){
-        $request->validated();
-        $member = Member::create([
-            'full_name' => $request->full_name,
-            'mobile_number' => $request->mobile_number,
-            'telephone_number' => $request->telephone_number,
-            'father_name' => $request->father_name,
-            'fax' => $request->fax,
-            'address' => $request->address
-        ]);
-        return $member;
-//        if ($member) return response()->json([
-//            'member' => $member,
-//            'msg' => 'عضو جدیدی با موفقیت اضافه شد. .',
-//            'success' => true
-//        ],201);
-//        else return response()->json([
-//            'msg' => 'خطایی در ایجاد عضو رخ داد!',
-//            'success' => false
-//        ],500);
-    }
-    public function update(MemberRequest $request,bool $needJsonRes=true){
+//    public function create($request){
+//        $request->validated();
+//        $member = Member::create([
+//            'full_name' => $request->full_name,
+//            'mobile_number' => $request->mobile_number,
+//            'telephone_number' => $request->telephone_number,
+//            'father_name' => $request->father_name,
+//            'fax' => $request->fax,
+//            'address' => $request->address
+//        ]);
+//        return $member;
+////        if ($member) return response()->json([
+////            'member' => $member,
+////            'msg' => 'عضو جدیدی با موفقیت اضافه شد. .',
+////            'success' => true
+////        ],201);
+////        else return response()->json([
+////            'msg' => 'خطایی در ایجاد عضو رخ داد!',
+////            'success' => false
+////        ],500);
+//    }
+    public function update(MemberRequest $request){
         $request->validated();
         $member = Member::where('id',$request->id)->update([
             'full_name' => $request->full_name,
@@ -40,16 +40,32 @@ class MemberController extends Controller
             'fax' => $request->fax,
             'address' => $request->address,
         ]);
-        if ($member) return $needJsonRes ? response()->json([
+        if ($member) return  response()->json([
             'member' => $member,
             'msg' => 'عضو با موفقیت آپدیت شد. .',
             'success' => true
-        ],201) : $member;
+        ],201) ;
         else return response()->json([
             'msg' => 'خطایی در آپدیت عضو رخ داد!',
             'success' => false
         ],500);
     }
+    public function updateWithAccountUpdate($request){
+        $member = Member::where('id',$request->member_id)->update([
+            'full_name' => $request->full_name,
+            'mobile_number' => $request->mobile_number,
+            'telephone_number' => $request->telephone_number,
+            'father_name' => $request->father_name,
+            'fax' => $request->fax,
+            'address' => $request->address,
+        ]);
+        if ($member) return $member;
+        else return response()->json([
+            'msg' => 'خطایی در آپدیت عضو رخ داد!',
+            'success' => false
+        ],500);
+    }
+
 //    public function destroy(Request $request){
 //        return Member::where('id', $request->id)->delete();
 ////        return response()->json([

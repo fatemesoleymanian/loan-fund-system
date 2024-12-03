@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\CharityController;
+use App\Http\Controllers\DepositController;
 use App\Http\Controllers\FundAccountController;
 use App\Http\Controllers\InstallmentController;
 use App\Http\Controllers\LoanAccountDetailController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MonthlyChargeController;
 use App\Http\Controllers\MonthlyChargeAccountController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\WithdrawController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -60,8 +62,6 @@ Route::prefix('/member')->group(function (){
     Route::get('/{id}',[MemberController::class,'showOne']);
     Route::post('/',[MemberController::class,'create']);
     Route::put('/',[MemberController::class,'update']);
-    Route::put('/update_stocks',[MemberController::class,'updateStocks']);
-    Route::post('/delete',[MemberController::class,'destroy']);
 });
 Route::prefix('/account')->group(function (){
     Route::get('/',[AccountController::class,'showAll']);
@@ -70,9 +70,17 @@ Route::prefix('/account')->group(function (){
     Route::get('/{id}',[AccountController::class,'showOne']);
     Route::get('/monthly_charge/{id}',[AccountController::class,'showOneWithMonthlyCharge']);
     Route::get('/loan/{id}',[AccountController::class,'showOneWithLoan']);
-    Route::post('/',[AccountController::class,'create']);
+    Route::post('/',[AccountController::class,'createMemberAndAccount']);
     Route::put('/',[AccountController::class,'update']);
-    Route::post('/delete',[AccountController::class,'destroy']);
+//    Route::put('/update_stock',[AccountController::class,'updateStocks']);
+});
+Route::prefix('/deposit')->group(function () {
+    Route::post('/', [DepositController::class, 'create']);
+    Route::get('/', [DepositController::class, 'showAll']);
+});
+Route::prefix('/withdraw')->group(function () {
+    Route::put('/closure', [WithdrawController::class, 'closure']);
+    Route::get('/', [WithdrawController::class, 'showAll']);
 });
 Route::prefix('/loan')->group(function (){
     Route::get('/',[LoanController::class,'showAll']);

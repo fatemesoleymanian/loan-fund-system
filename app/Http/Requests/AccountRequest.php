@@ -25,7 +25,7 @@ class AccountRequest extends FormRequest
     {
         return   [
             'member_id' => "required|exists:members,id",
-            'balance' => "nullable|numeric",
+//            'balance' => "nullable|numeric",
             'stock_units' => "required",
             'member_name' => "required",
             'status' => "required",
@@ -36,7 +36,7 @@ class AccountRequest extends FormRequest
     {
         return [
             'member_id.required' => 'لطفا عضو مربوطه را انتخاب کنید!',
-            'balance.required' => 'لطفا موجودی حساب را وارد کنید!',
+//            'balance.required' => 'لطفا موجودی حساب را وارد کنید!',
             'stock_units.required' => 'لطفا تعداد سهم را وارد کنید!',
             'member_name.required' => 'لطفا نام عضو مربوطه را وارد کنید!',
             'status.required' => 'لطفا وضعیت حساب را وارد کنید!',

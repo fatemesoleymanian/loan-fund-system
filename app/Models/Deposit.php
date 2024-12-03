@@ -7,5 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Deposit extends Model
 {
+    protected $guarded = [];
+    public function getCreatedAtAttribute($val)
+    {
+        return verta($val)->format('l d %B Y');
+    }
+    public function getUpdatedAtAttribute($val)
+    {
+        return verta($val)->format('l d %B Y');
+    }
     use HasFactory;
 }

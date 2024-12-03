@@ -34,7 +34,7 @@ class AccountController extends Controller
                 'amount' => $request->balance,
                 ];
             $depositController = new DepositController();
-            $depositController->create($deposit);
+            $depositController->createLog($deposit);
             DB::commit();
             if ($account) return response()->json([
                 'msg' => ' حساب با موفقیت اضافه شد. .',
@@ -59,7 +59,7 @@ class AccountController extends Controller
     public function update(AccountRequest $request){
             $request->validated();
             $memberController = new MemberController();
-            $member = $memberController->update($request,false);
+            $member = $memberController->updateWithAccountUpdate($request);
             $account = Account::where('id',$request->id)->update([
                 'member_id' => $request->member_id,
 //                'balance' => $request->balance,
@@ -70,6 +70,7 @@ class AccountController extends Controller
                 'description' => $request->description,
             ]);
             if ($account) return response()->json([
+                'member'=>$member,
                 'msg' => ' حساب با موفقیت آپدیت شد. .',
                 'success' => true
             ], 201);
@@ -121,7 +122,7 @@ class AccountController extends Controller
         ]);
     }
     public function showAll(){
-        $accounts = Account::with(['loans','member','monthlyCharges'])->get();
+        $accounts = Account::with(['monthlyCharges','member'])->get();
         return response()->json([
             'accounts' => $accounts,
             'success' => true
