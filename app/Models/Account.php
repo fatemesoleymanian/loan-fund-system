@@ -61,26 +61,27 @@ class Account extends Model
     ];
 }
  protected static function boot()
-    {
-        parent::boot();
+ {
+     parent::boot();
 
-        static::saving(function ($model) {
-            if ($model->price < 0) {
-                throw new \Exception('Price cannot be negative');
-            }
-        });
+     static::saving(function ($model) {
+         if ($model->balance < 0) {
+             throw new \Exception('موجودی نمیتواند منفی شود!');
+         }
+     });
 
-        // Alternatively, for strict control during creation or updates
-        static::creating(function ($model) {
-            if ($model->price < 0) {
-                throw new \Exception('Price cannot be negative');
-            }
-        });
+     // Alternatively, for strict control during creation or updates
+     static::creating(function ($model) {
+         if ($model->balance < 0) {
+             throw new \Exception('موجودی نمیتواند منفی شود!');
+         }
+     });
 
-        static::updating(function ($model) {
-            if ($model->price < 0) {
-                throw new \Exception('Price cannot be negative');
-            }
-        });
+     static::updating(function ($model) {
+         if ($model->balance < 0) {
+             throw new \Exception('موجودی نمیتواند منفی شود!');
+         }
+     });
+ }
     use HasFactory;
 }
