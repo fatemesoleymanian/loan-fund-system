@@ -60,6 +60,27 @@ class Account extends Model
         'count' => $count
     ];
 }
+ protected static function boot()
+    {
+        parent::boot();
 
+        static::saving(function ($model) {
+            if ($model->price < 0) {
+                throw new \Exception('Price cannot be negative');
+            }
+        });
+
+        // Alternatively, for strict control during creation or updates
+        static::creating(function ($model) {
+            if ($model->price < 0) {
+                throw new \Exception('Price cannot be negative');
+            }
+        });
+
+        static::updating(function ($model) {
+            if ($model->price < 0) {
+                throw new \Exception('Price cannot be negative');
+            }
+        });
     use HasFactory;
 }
