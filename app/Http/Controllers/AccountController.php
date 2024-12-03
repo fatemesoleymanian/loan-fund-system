@@ -28,15 +28,18 @@ class AccountController extends Controller
                 'stock_units' => $request->stock_units,
                 'description' => $request->description,
             ]);
-            $deposit = [
-                'description' => $request->description,
-                'account_id' => $account->id,
-                'amount' => $request->balance,
+            if($request->balance >0){
+                $deposit = [
+                    'description' => 'افتتاح حساب',
+                    'account_id' => $account->id,
+                    'amount' => $request->balance,
                 ];
-            $depositController = new DepositController();
-            $depositController->createLog($deposit);
+                $depositController = new DepositController();
+                $deposit = $depositController->createLog($deposit);
+            }
             DB::commit();
             if ($account) return response()->json([
+                'deposit'=>$deposit ?? null,
                 'msg' => ' حساب با موفقیت اضافه شد. .',
                 'success' => true
             ], 201);
@@ -146,7 +149,7 @@ class AccountController extends Controller
         ]);
     }
     public function showList(){
-        $accounts = Account::all();
+        $accounts = Account::openAccounts()->get();
         return response()->json([
             'accounts' => $accounts,
             'success' => true

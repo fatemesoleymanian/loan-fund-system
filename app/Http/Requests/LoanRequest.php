@@ -26,7 +26,7 @@ class LoanRequest extends FormRequest
     {
         return   [
             'installments' => 'required|array',
-            'principal_amount' => 'required|numeric',
+            'principal_amount' => 'required|numeric|min:0',
             'type' => ['required' , 'in:' .implode(',',Loan::getLoanTypes())],
             'number_of_installments' => "required",
             'status' => "required",

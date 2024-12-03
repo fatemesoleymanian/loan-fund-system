@@ -19,7 +19,7 @@ class CharityController extends Controller
             $charity = Charity::create([
                 'amount' => $request->amount,
                 'money_source' => $request->money_source,
-                'accounts' => $request->accounts,
+//                'accounts' => $request->accounts,
                 'description' => $request->description,
             ]);
             $withdrawObj = [
@@ -69,7 +69,7 @@ class CharityController extends Controller
     }
     private function handleBalanceSource($request){
         $this->handleNone($request);
-        $this->updateAccountBalance($request);
+//        $this->updateAccountBalance($request);
         $this->updateFundAccBalance($request);
     }
     private function updateFundAccBalance($request){
@@ -78,18 +78,18 @@ class CharityController extends Controller
         $fund_acc->total_balance -= $request->amount;
         $fund_acc->save();
     }
-    private function updateAccountBalance($request){
-        $list_of_accounts = Account::splitAccountIds($request->accounts);
-        $decrease = round((int) $request->amount / (int) $list_of_accounts['count']);
-        $accounts = $list_of_accounts['formattedIds'];
-        foreach ($accounts as $id){
-            $account = Account::where('id',$id)->first();
-            if($account){
-                $account->balance -= $decrease;
-                $account->save();
-            }
-        }
-    }
+//    private function updateAccountBalance($request){
+//        $list_of_accounts = Account::splitAccountIds($request->accounts);
+//        $decrease = round((int) $request->amount / (int) $list_of_accounts['count']);
+//        $accounts = $list_of_accounts['formattedIds'];
+//        foreach ($accounts as $id){
+//            $account = Account::where('id',$id)->first();
+//            if($account){
+//                $account->balance -= $decrease;
+//                $account->save();
+//            }
+//        }
+//    }
     private function updateFundAccountFees($request){
         $fund_acc = FundAccount::where('id',$request->fund_acc_id)->first();
         $fund_acc->expenses += $request->amount;

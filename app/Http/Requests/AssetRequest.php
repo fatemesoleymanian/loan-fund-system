@@ -26,7 +26,7 @@ class AssetRequest extends FormRequest
     {
         return   [
             'title' => "required",
-            'cost' => "nullable|numeric",
+            'cost' => "nullable|numeric|min:0",
             'money_source' => ['required' , 'in:' .implode(',',Asset::getMoneySource())],
         ];
     }

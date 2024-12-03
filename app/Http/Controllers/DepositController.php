@@ -50,16 +50,16 @@ class DepositController extends Controller
         DB::beginTransaction();
         try {
             $deposit = Deposit::create([
-                'amount'=>$request->amount,
-                'account_id'=>$request->account_id,
-                'description'=>$request->description
+                'amount'=>$request['amount'],
+                'account_id'=>$request['account_id'],
+                'description'=>$request['description']
             ]);
             DB::commit();
-            return response()->json([
+            return [
                 'deposit'=>$deposit,
                 'msg' => ' با موفقیت واریز شد.',
                 'success' => true
-            ], 201);
+            ];
 
         }catch (\Exception $e) {
             DB::rollBack();
@@ -68,7 +68,9 @@ class DepositController extends Controller
     }
     public function showAll(){
         $deposits = Deposit::all();
+        $amounts = Deposit::sum('amount');
         return response()->json([
+            'amounts'=>$amounts,
             'deposits' => $deposits,
             'success' => true
         ]);

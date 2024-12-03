@@ -26,7 +26,7 @@ class CharityRequest extends FormRequest
     {
         return   [
             'description' => 'required',
-            'amount' => "required|numeric",
+            'amount' => "required|numeric|min:0",
             'money_source' => ['required' , 'in:' .implode(',',Charity::getMoneySource())],
         ];
     }

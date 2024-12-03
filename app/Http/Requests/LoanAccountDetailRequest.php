@@ -21,8 +21,8 @@ class LoanAccountDetailRequest extends FormRequest
         return   [
             'loan_id' => 'required|exists:loans,id',
             'account_ids' => 'required|array',
-            'paid_amount' => 'required|numeric',
-            'remained_amount' => 'required|numeric',
+            'paid_amount' => 'required|numeric|min:0',
+            'remained_amount' => 'required|numeric|min:0',
 
         ];
     }

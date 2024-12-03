@@ -25,7 +25,7 @@ class DepositRequest extends FormRequest
     {
         return   [
             'description' => 'required',
-            'amount' => "required|numeric",
+            'amount' => "required|numeric|min:0",
             'account_id' => 'required|exists:accounts,id',
         ];
     }

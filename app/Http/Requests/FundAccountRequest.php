@@ -25,10 +25,10 @@ class FundAccountRequest extends FormRequest
     {
         return   [
             'name' => "required",
-            'balance' => "required|numeric",
-            'total_balance' => "required|numeric",
-            'fees' => "required|numeric",
-            'expenses' => "required|numeric",
+            'balance' => "required|numeric|min:0",
+            'total_balance' => "required|numeric|min:0",
+            'fees' => "required|numeric|min:0",
+            'expenses' => "required|numeric|min:0",
         ];
     }
     public function messages()

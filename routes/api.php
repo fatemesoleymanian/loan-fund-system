@@ -79,6 +79,7 @@ Route::prefix('/deposit')->group(function () {
     Route::get('/', [DepositController::class, 'showAll']);
 });
 Route::prefix('/withdraw')->group(function () {
+    Route::post('/', [WithdrawController::class, 'create']);
     Route::put('/closure', [WithdrawController::class, 'closure']);
     Route::get('/', [WithdrawController::class, 'showAll']);
 });

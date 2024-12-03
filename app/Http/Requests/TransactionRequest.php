@@ -21,7 +21,7 @@ class TransactionRequest extends FormRequest
     {
         return   [
             'account_id' => 'required|exists:accounts,id',
-            'amount' => 'required|numeric',
+            'amount' => 'required|numeric|min:0',
             'fund_account_id' => 'required|exists:fund_accounts,id',
             'description' => 'required',
             'monthly_charge_id' => 'nullable|exists:monthly_charges,id',

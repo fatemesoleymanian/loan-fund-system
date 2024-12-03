@@ -12,6 +12,29 @@ use Illuminate\Support\Facades\DB;
 
 class WithdrawController extends Controller
 {
+    public function create(DepositRequest $request){
+        DB::beginTransaction();
+        try {
+            $request->validated();
+            $this->updateFundAccBalance($request);
+            $this->updateAccountBalance($request);
+            $withdraw = Withdraw::create([
+                'amount'=>$request->amount,
+                'account_id'=>$request->account_id,
+                'description'=>$request->description
+            ]);
+            DB::commit();
+            return response()->json([
+                'withdraw'=>$withdraw,
+                'msg' => ' با موفقیت برداشت شد.',
+                'success' => true
+            ], 201);
+
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return TransactionController::errorResponse('خطایی در برداشت رخ داد! ' . $e->getMessage());
+        }
+    }
     public function closure(DepositRequest $request){
         DB::beginTransaction();
         try {
@@ -47,7 +70,7 @@ class WithdrawController extends Controller
     private function updateAccountBalance($request){
         $account = Account::where('id', $request->account_id)->first();
         $account->balance -= $request->amount;
-        if ($request->close) $account->is_open = false;
+//        if ($request->close) $account->is_open = false;
         $account->save();
     }
     public function createLog($request){
@@ -63,7 +86,9 @@ class WithdrawController extends Controller
     }
     public function showAll(){
         $withdraws = Withdraw::all();
+        $amounts = Withdraw::sum('amount');
         return response()->json([
+            'amounts'=>$amounts,
             'withdraws' => $withdraws,
             'success' => true
         ]);

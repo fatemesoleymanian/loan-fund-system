@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 class Account extends Model
 {
     protected $guarded = [];
-     protected static function booted()
-    {
-        static::addGlobalScope('is_open', function (Builder $builder) {
-            $builder->where('is_open', true);
-        });
-    }
+//     protected static function booted()
+//    {
+//        static::addGlobalScope('is_open', function (Builder $builder) {
+//            $builder->where('is_open', true);
+//        });
+//    }
     public function getCreatedAtAttribute($val)
     {
         return verta($val)->format('l d %B Y');
