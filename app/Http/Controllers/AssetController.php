@@ -35,7 +35,9 @@ class AssetController extends Controller
                 'msg' => 'اثاثیه با موفقیت اضافه شد. .',
                 'success' => true
             ], 201);
-            else return response()->json([
+            else return response()->json(
+                [
+                'withdraw'=>$withdraw,
                 'msg' => 'خطایی در ایجاد اثاثیه رخ داد!',
                 'success' => false
             ], 500);
@@ -68,7 +70,7 @@ class AssetController extends Controller
         }
     }
     private function handleBalanceSource($request){
-        $this->handleExpense($request);
+        $this->handleNone($request);
         $this->updateAccountBalance($request);
         $this->updateFundAccBalance($request);
     }
@@ -83,7 +85,7 @@ class AssetController extends Controller
         $decrease = round((int) $request->cost / (int) $list_of_accounts['count']);
         $accounts = $list_of_accounts['formattedIds'];
         foreach ($accounts as $id){
-            $account = Account::find($id);
+            $account = Account::where('id',$id)->first();
             if($account){
                 $account->balance -= $decrease;
                 $account->save();
@@ -94,6 +96,7 @@ class AssetController extends Controller
         $fund_acc = FundAccount::where('id',$request->fund_acc_id)->first();
         $fund_acc->expenses += $request->cost;
         $fund_acc->fees -= $request->cost;
+        $fund_acc->total_balance -= $request->cost;
         $fund_acc->save();
 
     }

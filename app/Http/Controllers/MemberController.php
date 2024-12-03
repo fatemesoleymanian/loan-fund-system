@@ -3,52 +3,65 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MemberRequest;
+use App\Models\Account;
 use App\Models\Member;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MemberController extends Controller
 {
-//    public function create($request){
-//        $request->validated();
-//        $member = Member::create([
-//            'full_name' => $request->full_name,
-//            'mobile_number' => $request->mobile_number,
-//            'telephone_number' => $request->telephone_number,
-//            'father_name' => $request->father_name,
-//            'fax' => $request->fax,
-//            'address' => $request->address
-//        ]);
-//        return $member;
-////        if ($member) return response()->json([
-////            'member' => $member,
-////            'msg' => 'عضو جدیدی با موفقیت اضافه شد. .',
-////            'success' => true
-////        ],201);
-////        else return response()->json([
-////            'msg' => 'خطایی در ایجاد عضو رخ داد!',
-////            'success' => false
-////        ],500);
-//    }
-    public function update(MemberRequest $request){
+    public function create($request){
         $request->validated();
-        $member = Member::where('id',$request->id)->update([
+        $member = Member::create([
             'full_name' => $request->full_name,
             'mobile_number' => $request->mobile_number,
             'telephone_number' => $request->telephone_number,
             'father_name' => $request->father_name,
             'fax' => $request->fax,
-            'address' => $request->address,
+            'address' => $request->address
         ]);
-        if ($member) return  response()->json([
-            'member' => $member,
-            'msg' => 'عضو با موفقیت آپدیت شد. .',
-            'success' => true
-        ],201) ;
-        else return response()->json([
-            'msg' => 'خطایی در آپدیت عضو رخ داد!',
-            'success' => false
-        ],500);
+        return $member;
+//        if ($member) return response()->json([
+//            'member' => $member,
+//            'msg' => 'عضو جدیدی با موفقیت اضافه شد. .',
+//            'success' => true
+//        ],201);
+//        else return response()->json([
+//            'msg' => 'خطایی در ایجاد عضو رخ داد!',
+//            'success' => false
+//        ],500);
+    }
+    public function update(MemberRequest $request){
+        DB::beginTransaction();
+        try{
+            $request->validated();
+            $account = Account::where('id', $request->account_id)->update([
+                'member_name' => $request->full_name,
+            ]);
+            $member = Member::where('id', $request->id)->update([
+                'full_name' => $request->full_name,
+                'mobile_number' => $request->mobile_number,
+                'telephone_number' => $request->telephone_number,
+                'father_name' => $request->father_name,
+                'fax' => $request->fax,
+                'address' => $request->address,
+            ]);
+            DB::commit();
+            if ($member) return response()->json([
+                'account'=>$account,
+                'member' => $member,
+                'msg' => 'عضو با موفقیت آپدیت شد. .',
+                'success' => true
+            ], 201);
+            else return response()->json([
+                'msg' => 'خطایی در آپدیت عضو رخ داد!',
+                'success' => false
+            ], 500);
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return TransactionController::errorResponse('خطایی در آپدیت رخ داد! ' . $e->getMessage());
+        }
     }
     public function updateWithAccountUpdate($request){
         $member = Member::where('id',$request->member_id)->update([
@@ -75,7 +88,9 @@ class MemberController extends Controller
 //        ]);
 //    }
     public function showOne($id){
-        $member = Member::with(['account'])->where('id', $id)->first();
+        $member = Member::whereHas('account',function ($query){
+            $query->where('is_open',true);
+        })->with(['account'])->where('id', $id)->first();
         if ($member) return response()->json([
             'member' => $member,
              'success' => true
@@ -86,7 +101,9 @@ class MemberController extends Controller
         ]);
     }
     public function showAll(){
-        $members = Member::with(['account'])->get();
+        $members = Member::whereHas('account',function ($query){
+            $query->where('is_open',true);
+        })->with(['account'])->get();
         return response()->json([
             'members' => $members,
             'success' => true
@@ -101,12 +118,8 @@ class MemberController extends Controller
     }
     public function search($str){
         if($str) {
-            $members = Member::with(['account'])
-                ->when($str != '', function (Builder $q) use ($str) {
-                    $q->where('full_name', 'LIKE', "%{$str}%")
-                        ->orWhereHas('account', function (Builder $builder) use ($str) {
-                            $builder->where('account_number', 'LIKE', "%{$str}%");
-                        });
+            $members = Member::when($str != '', function (Builder $q) use ($str) {
+                    $q->where('full_name', 'LIKE', "%{$str}%");
                 })->get();
             return response()->json([
                 'members' => $members,

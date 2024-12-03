@@ -60,7 +60,7 @@ Route::prefix('/member')->group(function (){
     Route::get('/list',[MemberController::class,'membersList']);
     Route::get('/search={str}',[MemberController::class,'search']);
     Route::get('/{id}',[MemberController::class,'showOne']);
-    Route::post('/',[MemberController::class,'create']);
+//    Route::post('/',[MemberController::class,'create']);
     Route::put('/',[MemberController::class,'update']);
 });
 Route::prefix('/account')->group(function (){

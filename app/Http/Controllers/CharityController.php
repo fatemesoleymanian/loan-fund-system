@@ -31,11 +31,12 @@ class CharityController extends Controller
             $withdraw = $withdrawController->createLog($withdrawObj);
             DB::commit();
             if ($charity) return response()->json([
+                'withdraw'=>$withdraw,
                 'msg' => ' با موفقیت اضافه شد.',
                 'success' => true
             ], 201);
             else return response()->json([
-                'msg' => 'خطایی در ایجاد  رخ داد!',
+                'msg' => 'خطایی در ایجادد  رخ داد!',
                 'success' => false
             ], 500);
 
@@ -67,7 +68,7 @@ class CharityController extends Controller
         }
     }
     private function handleBalanceSource($request){
-        $this->handleExpense($request);
+        $this->handleNone($request);
         $this->updateAccountBalance($request);
         $this->updateFundAccBalance($request);
     }
@@ -82,7 +83,7 @@ class CharityController extends Controller
         $decrease = round((int) $request->amount / (int) $list_of_accounts['count']);
         $accounts = $list_of_accounts['formattedIds'];
         foreach ($accounts as $id){
-            $account = Account::find($id);
+            $account = Account::where('id',$id)->first();
             if($account){
                 $account->balance -= $decrease;
                 $account->save();
@@ -93,6 +94,7 @@ class CharityController extends Controller
         $fund_acc = FundAccount::where('id',$request->fund_acc_id)->first();
         $fund_acc->expenses += $request->amount;
         $fund_acc->fees -= $request->amount;
+        $fund_acc->total_balance -= $request->amount;
         $fund_acc->save();
     }
 

@@ -52,11 +52,10 @@ class WithdrawController extends Controller
     }
     public function createLog($request){
         $withdraw = Withdraw::create([
-            'amount'=>$request->amount,
-            'account_id'=>$request->account_id ?? null,
-            'description'=>$request->description
+            'amount'=>$request['amount'],
+            'account_id'=>$request['account_id'] ?? null,
+            'description'=>$request['description']
         ]);
-        DB::commit();
         return response()->json([
             'msg' => ' با موفقیت برداشت شد.',
             'success' => true

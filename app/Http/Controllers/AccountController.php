@@ -64,7 +64,7 @@ class AccountController extends Controller
                 'member_id' => $request->member_id,
 //                'balance' => $request->balance,
                 'is_open' => $request->is_open,
-                'member_name' => $request->member_name,
+                'member_name' => $request->full_name,
                 'status' => $request->status,
                 'stock_units' => $request->stock_units,
                 'description' => $request->description,
@@ -121,8 +121,25 @@ class AccountController extends Controller
             'success' => false
         ]);
     }
+    //only open ones
     public function showAll(){
         $accounts = Account::with(['monthlyCharges','member'])->get();
+        return response()->json([
+            'accounts' => $accounts,
+            'success' => true
+        ]);
+    }
+    //all open and close
+    public function showAllOpenAndClose(){
+        $accounts = Account::withoutGlobalScope('is_open')->with(['monthlyCharges','member'])->get();
+        return response()->json([
+            'accounts' => $accounts,
+            'success' => true
+        ]);
+    }
+    //only closed ones
+    public function showAllClosed(){
+        $accounts = Account::withoutGlobalScope('is_open')->closedAccounts()->get();
         return response()->json([
             'accounts' => $accounts,
             'success' => true
