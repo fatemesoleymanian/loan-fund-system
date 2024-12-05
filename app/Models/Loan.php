@@ -8,41 +8,40 @@ use Illuminate\Database\Eloquent\Model;
 class Loan extends Model
 {
     protected $guarded = [];
-    const TYPE_CHARITY = 'وام قرض الحسنه';
-
-//    public function getCreatedAtAttribute($val)
+    public function getCreatedAtAttribute($val)
+    {
+        return verta($val)->format('l d %B Y');
+    }
+    public function getUpdatedAtAttribute($val)
+    {
+        return verta($val)->format('l d %B Y');
+    }
+//    public function getDueDateAttribute($val)
 //    {
-//        return verta($val)->format('l d %B Y');
+//        return verta($val)->format('Y/m/d');
 //    }
-//    public function getUpdatedAtAttribute($val)
-//    {
-//        return verta($val)->format('l d %B Y');
-//    }
-    public function getDueDateAttribute($val)
+    protected static function boot()
     {
-        return verta($val)->format('Y/m/d');
-    }
-    public function getIssueDateAttribute($val)
-    {
-        return verta($val)->format('Y/m/d');
-    }
-    public function getEndDateAttribute($val)
-    {
-        return verta($val)->format('Y/m/d');
-    }
+        parent::boot();
 
-     public static function getLoanTypes()
-    {
-        return [
-            self::TYPE_CHARITY
-        ];
-    }
-    public  function installments()
-    {
-        return $this->hasMany(Installment::class, 'loan_id');
-    }
-    public function accounts(){
-        return $this->belongsToMany(Account::class,'loan_account_details');
+        static::saving(function ($model) {
+            if ($model->max_amount < 0 || $model->min_amount || $model->static_fee || $model->fee_percent) {
+                throw new \Exception('سقف نمیتواند منفی شود!');
+            }
+        });
+
+        // Alternatively, for strict control during creation or updates
+        static::creating(function ($model) {
+            if ($model->max_amount < 0 || $model->min_amount || $model->static_fee || $model->fee_percent) {
+                throw new \Exception('سقف نمیتواند منفی شود!');
+            }
+        });
+
+        static::updating(function ($model) {
+            if ($model->max_amount < 0 || $model->min_amount || $model->static_fee || $model->fee_percent) {
+                throw new \Exception('سقف نمیتواند منفی شود!');
+            }
+        });
     }
     use HasFactory;
 }

@@ -15,10 +15,22 @@ return new class extends Migration
     {
         Schema::create('installments', function (Blueprint $table) {
             $table->id();
+            //for loan
             $table->foreignId('loan_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->string('inst_number')->nullable(false)->default('اول');
-            $table->decimal('amount_due',10,2)->nullable(false);
-            $table->timestamp('due_date');
+            $table->foreignId('loan_account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+//            $table->integer('interest')->default(0);//sood
+            //for charge
+            $table->foreignId('monthly_charge_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            //moshtarak
+            $table->foreignId('account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->string('account_name')->nullable(false);
+            $table->string('inst_number')->nullable(false)->default('1');
+            $table->decimal('amount',10,2)->nullable(false);
+            $table->timestamp('due_date');//tarikhe saresis
+            $table->timestamp('paid_date')->nullable(true);//tarikhe pardakht
+            $table->integer('delay_days')->default(0);
+            $table->integer('type')->nullable(false);//1 => mahiane  & 2 => vam
+            $table->string('title')->nullable(false);//esme mahiane ya emse vam
             $table->timestamps();
         });
     }

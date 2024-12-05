@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('title')->nullable(false);
             $table->decimal('amount')->nullable(false);
-            $table->integer('year')->nullable(false);
+            $table->integer('year')->unique(true)->nullable(false);
 //            $table->foreignId('fund_account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });

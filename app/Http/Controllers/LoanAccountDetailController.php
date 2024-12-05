@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoanAccountDetailRequest;
-use App\Models\LoanAccountDetail;
+use App\Models\LoanAccount;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,10 +15,10 @@ class LoanAccountDetailController extends Controller
         try {
             $request->validated();
 
-             LoanAccountDetail::where('loan_id',$request->loan_id)->delete();
+             LoanAccount::where('loan_id',$request->loan_id)->delete();
 
             foreach ($request->account_ids as $acc) {
-                LoanAccountDetail::create([
+                LoanAccount::create([
                     'loan_id' => $request->loan_id,
                     'account_id' => $acc['value'],
                     'remained_amount' => $request->remained_amount,
@@ -37,7 +37,7 @@ class LoanAccountDetailController extends Controller
     public function update(LoanAccountDetailRequest $request){
         $request->validated();
 
-        $loanAccDetails = LoanAccountDetail::where('id', $request->id)->update([
+        $loanAccDetails = LoanAccount::where('id', $request->id)->update([
             'loan_id' => $request->loan_id,
             'account_id' => $request->account_id,
             'remained_amount' => $request->remained_amount,
@@ -57,21 +57,21 @@ class LoanAccountDetailController extends Controller
 
     }
     public function destroy(Request $request){
-        $loan_acc = LoanAccountDetail::where('id', $request->id)->delete();
+        $loan_acc = LoanAccount::where('id', $request->id)->delete();
         return response()->json([
             'msg' => 'اطلاعات با موفقیت حذف گردید.',
             'success' => true
         ]);
     }
     public function showAll(){
-        $loan_accs = LoanAccountDetail::with(['account','loan'])->get();
+        $loan_accs = LoanAccount::with(['account','loan'])->get();
         return response()->json([
             'data' => $loan_accs,
             'success' => true
         ]);
     }
     public function showOne($acc_id,$loan_id){
-        $loan_acc = LoanAccountDetail::with(['account','loan'])->where('account_id', $acc_id)
+        $loan_acc = LoanAccount::with(['account','loan'])->where('account_id', $acc_id)
         ->where('loan_id',$loan_id)->first();
         if ($loan_acc) return response()->json([
             'data' => $loan_acc,
@@ -83,7 +83,7 @@ class LoanAccountDetailController extends Controller
         ],500);
     }
     public function showOneByAccount($acc_id){
-        $loan_acc = LoanAccountDetail::with(['account','loan'])->where('account_id', $acc_id)->first();
+        $loan_acc = LoanAccount::with(['account','loan'])->where('account_id', $acc_id)->first();
         if ($loan_acc) return response()->json([
             'data' => $loan_acc,
             'success' => true
@@ -94,7 +94,7 @@ class LoanAccountDetailController extends Controller
         ],500);
     }
     public function showOneByLoan($loan_id){
-        $loan_acc = LoanAccountDetail::with(['account','loan'])->where('loan_id', $loan_id)->first();
+        $loan_acc = LoanAccount::with(['account','loan'])->where('loan_id', $loan_id)->first();
         if ($loan_acc) return response()->json([
             'data' => $loan_acc,
             'success' => true

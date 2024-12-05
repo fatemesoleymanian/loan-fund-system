@@ -19,10 +19,9 @@ return new class extends Migration
             $table->decimal('amount',10,2)->nullable(false);
             $table->enum('type',['پرداخت ماهیانه','پرداخت قسط','پرداخت وام','پرداخت جریمه','پرداخت کارمزد','واریز','برداشت']);
             $table->text('description')->nullable(true);
-            $table->integer('delay_days')->default(0);
             $table->foreignId('fund_account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('monthly_charge_id')->nullable(true)->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('installment_id')->nullable(true)->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->string('account_name');
+            $table->string('fund_account_name');
             $table->timestamps();
         });
     }

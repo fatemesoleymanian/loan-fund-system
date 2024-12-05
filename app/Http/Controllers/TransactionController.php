@@ -6,7 +6,7 @@ use App\Http\Requests\TransactionRequest;
 use App\Models\Account;
 use App\Models\FundAccount;
 use App\Models\Installment;
-use App\Models\LoanAccountDetail;
+use App\Models\LoanAccount;
 use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -97,7 +97,7 @@ class TransactionController extends Controller
     {
         if ($installment_id != null){
             $loan_id = Installment::where('id',$installment_id)->value('loan_id');
-            $payment = LoanAccountDetail::where('loan_id',$loan_id)->where('account_id',$account->id)->first();
+            $payment = LoanAccount::where('loan_id',$loan_id)->where('account_id',$account->id)->first();
              if (!$payment) {
             throw new \Exception("No payment record found for loan and account.".$loan_id);
         }
@@ -120,7 +120,7 @@ class TransactionController extends Controller
     private function updatePlusBalances($account, $fundAccount, $amount,$pay_loan=null)
     {
         if ($pay_loan != null){
-           $loan = LoanAccountDetail::where('account_id',$account->id)->where('loan_id',$pay_loan)->first();
+           $loan = LoanAccount::where('account_id',$account->id)->where('loan_id',$pay_loan)->first();
            $loan->paid_by_fund = true;
            $loan->save();
         }

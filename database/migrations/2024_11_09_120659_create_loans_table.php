@@ -16,16 +16,16 @@ return new class extends Migration
         Schema::create('loans', function (Blueprint $table) {
             $table->id();
 //            $table->foreignId('account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->decimal('principal_amount',10,2);
-            $table->decimal('fee',10,2)->default(4);
-            $table->enum('type',['وام قرض الحسنه'])->default('وام قرض الحسنه');
+            $table->string('title')->nullable(false);
+            $table->decimal('static_fee',10,2)->default(0);
+            $table->integer('fee_percent')->default(4);
+            $table->integer('interest')->default(0);
             $table->integer('number_of_installments')->nullable(false);
-            $table->boolean('status')->default(true);
-            $table->integer('year')->nullable(false);
-            $table->integer('intervalDays')->default(1);
-            $table->timestamp('due_date');
-            $table->timestamp('issue_date');
-            $table->timestamp('end_date');
+            $table->integer('installment_interval')->nullable(false)->default(30);
+            $table->integer('max_amount')->default(0);
+            $table->integer('min_amount')->default(0);
+            $table->boolean('emergency')->default(false);
+            $table->boolean('no_need_to_pay')->default(false);
             $table->timestamps();
         });
     }

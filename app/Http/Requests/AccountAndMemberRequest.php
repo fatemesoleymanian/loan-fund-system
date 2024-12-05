@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Account;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AccountAndMemberRequest extends FormRequest
@@ -28,7 +29,7 @@ class AccountAndMemberRequest extends FormRequest
             'balance' => "required|numeric|min:0",
             'stock_units' => "required",
 //            'member_name' => "required",
-            'status' => "required",
+            'status' => ['required' , 'in:' .implode(',',Account::getAccountStatus())],
             'is_open' => "required",
             'full_name' => "required",
             'mobile_number' => "required",

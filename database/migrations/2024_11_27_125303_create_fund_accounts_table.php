@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('fees',10,2)->default(0);
             $table->decimal('total_balance',10,2)->default(0);
             $table->decimal('expenses',10,2)->default(0);
+            $table->enum('status',['بستانکار','بدهکار','تسویه'])->nullable(false)->default('بستانکار');
             $table->timestamps();
         });
     }

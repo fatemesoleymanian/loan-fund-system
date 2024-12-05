@@ -25,14 +25,7 @@ class Transaction extends Model
     {
         return $this->belongsTo(FundAccount::class, 'fund_account_id');
     }
-    public  function monthlyCharge()
-    {
-        return $this->belongsTo(MonthlyCharge::class, 'monthly_charge_id');
-    }
-    public  function installment()
-    {
-        return $this->belongsTo(Installment::class, 'installment_id');
-    }
+
     const TYPE_MONTHLY_PAYMENT = 'پرداخت ماهیانه';
     const TYPE_INSTALLMENT = 'پرداخت قسط';
     const TYPE_LOAN_PAYMENT = 'پرداخت وام';
@@ -53,6 +46,28 @@ class Transaction extends Model
             self::TYPE_DEPOSIT
         ];
     }
+    protected static function boot()
+    {
+        parent::boot();
 
+        static::saving(function ($model) {
+            if ($model->amount < 0 ) {
+                throw new \Exception('مبلغ نمیتواند منفی شود!');
+            }
+        });
+
+        // Alternatively, for strict control during creation or updates
+        static::creating(function ($model) {
+            if ($model->amount < 0 ) {
+                throw new \Exception('مبلغ نمیتواند منفی شود!');
+            }
+        });
+
+        static::updating(function ($model) {
+            if ($model->amount < 0 ) {
+                throw new \Exception('مبلغ نمیتواند منفی شود!');
+            }
+        });
+    }
     use HasFactory;
 }

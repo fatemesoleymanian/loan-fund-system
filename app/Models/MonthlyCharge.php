@@ -18,7 +18,30 @@ class MonthlyCharge extends Model
     }
     public  function accounts()
     {
-        return $this->belongsToMany(Account::class, 'monthly_charge_accounts');
+        return $this->belongsToMany(Account::class, 'installments');
+    }
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            if ($model->amount < 0) {
+                throw new \Exception('مبلغ نمیتواند منفی شود!');
+            }
+        });
+
+        // Alternatively, for strict control during creation or updates
+        static::creating(function ($model) {
+            if ($model->amount < 0) {
+                throw new \Exception('مبلغ نمیتواند منفی شود!');
+            }
+        });
+
+        static::updating(function ($model) {
+            if ($model->amount < 0) {
+                throw new \Exception('مبلغ نمیتواند منفی شود!');
+            }
+        });
     }
     use HasFactory;
 }

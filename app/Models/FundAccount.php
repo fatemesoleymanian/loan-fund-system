@@ -39,6 +39,18 @@ class FundAccount extends Model
             }
         });
     }
+   const STATUS_SETTLEMENT = 'تسویه';
+    const STATUS_CREDITOR = 'بستانکار';
+    const STATUS_DEBTOR = 'بدهکار';
+
+    public static function getAccountStatus()
+    {
+        return [
+            self::STATUS_SETTLEMENT,
+            self::STATUS_CREDITOR,
+            self::STATUS_DEBTOR,
+        ];
+    }
 
     use HasFactory;
 }

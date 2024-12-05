@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('cost',10,2)->default(0)->nullable(true);
             $table->enum('money_source',['از کارمزد','از موجودی','از هیچکدام'])->nullable(false);//az fees bardashtim ya balance ya asan barnmidari
             $table->text('description')->nullable(true);
-            $table->string('accounts')->nullable(true);
+//            $table->string('accounts')->nullable(true);
             $table->timestamps();
         });
     }

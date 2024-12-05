@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 class Account extends Model
 {
     protected $guarded = [];
-//     protected static function booted()
-//    {
-//        static::addGlobalScope('is_open', function (Builder $builder) {
-//            $builder->where('is_open', true);
-//        });
-//    }
+     protected static function booted()
+    {
+        static::addGlobalScope('is_open', function (Builder $builder) {
+            $builder->where('is_open', true);
+        });
+    }
     public function getCreatedAtAttribute($val)
     {
         return verta($val)->format('l d %B Y');
@@ -31,7 +31,7 @@ class Account extends Model
         return $this->belongsToMany(Loan::class,'loan_account_details');
     }
     public function loan_details(){
-        return $this->hasMany(LoanAccountDetail::class);
+        return $this->hasMany(LoanAccount::class);
     }
     public  function monthlyCharges()
     {
@@ -83,5 +83,17 @@ class Account extends Model
          }
      });
  }
+    const STATUS_SETTLEMENT = 'تسویه';
+    const STATUS_CREDITOR = 'بستانکار';
+    const STATUS_DEBTOR = 'بدهکار';
+
+    public static function getAccountStatus()
+    {
+        return [
+            self::STATUS_SETTLEMENT,
+            self::STATUS_CREDITOR,
+            self::STATUS_DEBTOR,
+        ];
+    }
     use HasFactory;
 }
