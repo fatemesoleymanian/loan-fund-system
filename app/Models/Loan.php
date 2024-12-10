@@ -25,20 +25,20 @@ class Loan extends Model
         parent::boot();
 
         static::saving(function ($model) {
-            if ($model->max_amount < 0 || $model->min_amount || $model->static_fee || $model->fee_percent) {
+            if ($model->max_amount < 0 || $model->min_amount < 0 || $model->static_fee < 0 || $model->fee_percent < 0) {
                 throw new \Exception('سقف نمیتواند منفی شود!');
             }
         });
 
         // Alternatively, for strict control during creation or updates
         static::creating(function ($model) {
-            if ($model->max_amount < 0 || $model->min_amount || $model->static_fee || $model->fee_percent) {
+            if ($model->max_amount < 0 || $model->min_amount < 0 || $model->static_fee < 0 || $model->fee_percent < 0) {
                 throw new \Exception('سقف نمیتواند منفی شود!');
             }
         });
 
         static::updating(function ($model) {
-            if ($model->max_amount < 0 || $model->min_amount || $model->static_fee || $model->fee_percent) {
+            if ($model->max_amount < 0 || $model->min_amount < 0 || $model->static_fee < 0 || $model->fee_percent < 0) {
                 throw new \Exception('سقف نمیتواند منفی شود!');
             }
         });

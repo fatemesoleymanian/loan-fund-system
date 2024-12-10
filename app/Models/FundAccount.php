@@ -21,20 +21,20 @@ class FundAccount extends Model
         parent::boot();
 
         static::saving(function ($model) {
-            if ($model->balance < 0 || $model->total_balance || $model->fees || $model->expenses) {
+            if ($model->balance < 0 || $model->total_balance < 0 || $model->fees < 0 || $model->expenses < 0) {
                 throw new \Exception('موجودی نمیتواند منفی شود!');
             }
         });
 
         // Alternatively, for strict control during creation or updates
         static::creating(function ($model) {
-            if ($model->balance < 0 || $model->total_balance || $model->fees || $model->expenses) {
+            if ($model->balance < 0 || $model->total_balance < 0 || $model->fees < 0 || $model->expenses < 0) {
                 throw new \Exception('موجودی نمیتواند منفی شود!');
             }
         });
 
         static::updating(function ($model) {
-            if ($model->balance < 0 || $model->total_balance || $model->fees || $model->expenses) {
+            if ($model->balance < 0 || $model->total_balance < 0 || $model->fees < 0 || $model->expenses < 0) {
                 throw new \Exception('موجودی نمیتواند منفی شود!');
             }
         });
