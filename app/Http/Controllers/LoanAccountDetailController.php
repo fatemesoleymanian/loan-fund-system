@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoanAccountDetailRequest;
+use App\Models\FundAccount;
 use App\Models\LoanAccount;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
@@ -57,11 +58,30 @@ class LoanAccountDetailController extends Controller
 
     }
     public function destroy(Request $request){
-        $loan_acc = LoanAccount::where('id', $request->id)->delete();
-        return response()->json([
-            'msg' => 'اطلاعات با موفقیت حذف گردید.',
-            'success' => true
-        ]);
+        DB::beginTransaction();
+        try {
+            $loan = LoanAccount::where('id', $request->id)->first();
+            if($loan->paid_amount === 0){
+                $fund_account = FundAccount::where('id',$loan->fund_account_id)->first();
+                $fund_account->balance += $loan->amount;
+                $fund_account->total_balance += $loan->amount;
+                $fund_account->fees -= $loan->fee_amount;
+                $transaction = Transaction::where('loan_id',$loan->loan_id)->delete();
+                $loan->delete();
+                DB::commit();
+                return response()->json([
+                    'msg' => 'وام با موفقیت حذف گردید.',
+                    'success' => true
+                ]);
+            }else{
+                return response()->json([
+                    'msg' => 'امکان حذف وام وجود ندارد. وام دارای اقساط پرداخت شده است!',
+                    'success' => false
+                ],400);
+            }
+        }catch (\Exception $e){
+            DB::rollBack();
+        }
     }
     public function showAll(){
         $loan_accs = LoanAccount::with(['account','loan'])->get();

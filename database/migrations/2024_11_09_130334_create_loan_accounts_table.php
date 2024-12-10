@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('fund_account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->decimal('amount',10,2)->nullable(false);
-            $table->decimal('paid_amount',10,2)->nullable(false);
+            $table->decimal('paid_amount',10,2)->nullable(false)->default(0);
             $table->timestamp('granted_at')->nullable(false);
             $table->timestamp('payback_at')->nullable(false);
             $table->integer('number_of_installments')->nullable(false);

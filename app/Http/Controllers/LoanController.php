@@ -83,6 +83,7 @@ class LoanController extends Controller
             ]);
         }
     }
+
     public function destroy(Request $request){
         $loan = Loan::where('id', $request->id)->delete();
         return response()->json([
