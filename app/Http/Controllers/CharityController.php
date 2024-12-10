@@ -22,16 +22,15 @@ class CharityController extends Controller
 //                'accounts' => $request->accounts,
                 'description' => $request->description,
             ]);
-            $withdrawObj = [
-                'amount'=>$request->amount,
-                'account_id'=> null,
-                'description'=>$request->description
-            ];
-            $withdrawController = new WithdrawController();
-            $withdraw = $withdrawController->createLog($withdrawObj);
+//            $withdrawObj = [
+//                'amount'=>$request->amount,
+//                'account_id'=> null,
+//                'description'=>$request->description
+//            ];
+//            $withdrawController = new WithdrawController();
+//            $withdraw = $withdrawController->createLog($withdrawObj);
             DB::commit();
             if ($charity) return response()->json([
-                'withdraw'=>$withdraw,
                 'msg' => ' با موفقیت اضافه شد.',
                 'success' => true
             ], 201);
@@ -62,7 +61,7 @@ class CharityController extends Controller
     }
     private function handleNone($request){
         if ($request->isExpense){
-            $fund_acc = FundAccount::where('id',$request->fund_acc_id)->first();
+            $fund_acc = FundAccount::where('id',$request->fund_account_id)->first();
             $fund_acc->expenses += $request->amount;
             $fund_acc->save();
         }
@@ -73,58 +72,55 @@ class CharityController extends Controller
         $this->updateFundAccBalance($request);
     }
     private function updateFundAccBalance($request){
-        $fund_acc = FundAccount::where('id',$request->fund_acc_id)->first();
+        $fund_acc = FundAccount::where('id',$request->fund_account_id)->first();
         $fund_acc->balance -= $request->amount;
         $fund_acc->total_balance -= $request->amount;
         $fund_acc->save();
     }
-//    private function updateAccountBalance($request){
-//        $list_of_accounts = Account::splitAccountIds($request->accounts);
-//        $decrease = round((int) $request->amount / (int) $list_of_accounts['count']);
-//        $accounts = $list_of_accounts['formattedIds'];
-//        foreach ($accounts as $id){
-//            $account = Account::where('id',$id)->first();
-//            if($account){
-//                $account->balance -= $decrease;
-//                $account->save();
-//            }
-//        }
-//    }
+
     private function updateFundAccountFees($request){
-        $fund_acc = FundAccount::where('id',$request->fund_acc_id)->first();
+        $fund_acc = FundAccount::where('id',$request->fund_account_id)->first();
         $fund_acc->expenses += $request->amount;
         $fund_acc->fees -= $request->amount;
         $fund_acc->total_balance -= $request->amount;
         $fund_acc->save();
     }
 
-
-//    public function update(Request $request){
-//        if (!$request->id) return response()->json([
-//            'msg' => ' را انتخاب کنید.'
-//        ],400);
-//        $charity = Charity::where('id', $request->id)->update([
-//            'description' => $request->description,
-//        ]);
-//
-//        if ($charity) return response()->json([
-//            'msg' => ' با موفقیت آپدیت شد. .',
-//            'success' => true
-//        ],201);
-//        else return response()->json([
-//            'msg' => 'خطایی در آپدیت  رخ داد!',
-//            'success' => false
-//        ],500);
-//
-//    }
     //BAYAD AZ EXPENSES KAM SHE BE MONEY_SOURCE EZFE SHE
-//    public function destroy(Request $request){
-//        $charity = Charity::where('id', $request->id)->delete();
-//        return response()->json([
-//            'msg' => ' با موفقیت حذف گردید.',
-//            'success' => true
-//        ]);
-//    }
+    public function destroy(Request $request){
+        DB::beginTransaction();
+        try {
+            $charity = Charity::where('id', $request->id)->first();
+            $fund_account = FundAccount::where('id', $request->fund_account_id)->first();
+            switch ($charity->money_source){
+                case Charity::NONE:
+                    $fund_account->expenses -= $charity->amount;
+                    break;
+                case Charity::BALANCE_SOURCE:
+                    $fund_account->expenses -= $charity->amount;
+                    $fund_account->balance += $charity->amount;
+                    $fund_account->total_balance += $charity->amount;
+                    break;
+                case Charity::FEE_SOURCE:
+                    $fund_account->expenses -= $charity->amount;
+                    $fund_account->total_balance += $charity->amount;
+                    $fund_account->fees += $charity->amount;
+                    break;
+                default:
+                    throw new \Exception('منبع هزینه نامعتبر است.');
+            }
+            $fund_account->save();
+            $charity->delete();
+            DB::commit();
+            return response()->json([
+                'msg' => ' با موفقیت حذف گردید.',
+                'success' => true
+            ]);
+        }catch (\Exception $e){
+            DB::rollBack();
+            return TransactionController::errorResponse('خطایی در ایجاد  رخ داد! ' . $e->getMessage());
+        }
+    }
     public function showAll(){
         $charities = Charity::all();
         $amounts = Charity::sum('amount');

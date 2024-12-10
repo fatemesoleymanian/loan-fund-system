@@ -21,6 +21,7 @@ class WithdrawController extends Controller
             $withdraw = Withdraw::create([
                 'amount'=>$request->amount,
                 'account_id'=>$request->account_id,
+                'fund_account_id'=>$request->fund_account_id,
                 'description'=>$request->description
             ]);
             DB::commit();
@@ -35,6 +36,7 @@ class WithdrawController extends Controller
             return TransactionController::errorResponse('خطایی در برداشت رخ داد! ' . $e->getMessage());
         }
     }
+    /**TODO */
     public function closure(DepositRequest $request){
         DB::beginTransaction();
         try {
@@ -62,7 +64,7 @@ class WithdrawController extends Controller
         }
     }
     private function updateFundAccBalance($request){
-        $fund_account = FundAccount::latest()->first();
+        $fund_account = FundAccount::find($request->fund_account_id);
         $fund_account->balance -= $request->amount;
         $fund_account->total_balance -= $request->amount;
         $fund_account->save();
@@ -77,6 +79,7 @@ class WithdrawController extends Controller
         $withdraw = Withdraw::create([
             'amount'=>$request['amount'],
             'account_id'=>$request['account_id'] ?? null,
+            'fund_account_id'=>$request['fund_account_id'],
             'description'=>$request['description']
         ]);
         return response()->json([

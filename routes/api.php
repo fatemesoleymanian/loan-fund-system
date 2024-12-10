@@ -46,14 +46,14 @@ Route::prefix('/asset')->group(function (){
     Route::get('/{id}',[AssetController::class,'showOne']);
     Route::post('/',[AssetController::class,'create']);
 //    Route::put('/',[AssetController::class,'update']);
-//    Route::post('/delete',[AssetController::class,'destroy']);
+    Route::post('/delete',[AssetController::class,'destroy']);
 });
 Route::prefix('/charity')->group(function (){
     Route::get('/',[CharityController::class,'showAll']);
     Route::get('/{id}',[CharityController::class,'showOne']);
     Route::post('/',[CharityController::class,'create']);
 //    Route::put('/',[CharityController::class,'update']);
-//    Route::post('/delete',[CharityController::class,'destroy']);
+    Route::post('/delete',[CharityController::class,'destroy']);
 });
 Route::prefix('/member')->group(function (){
     Route::get('/',[MemberController::class,'showAll']);
