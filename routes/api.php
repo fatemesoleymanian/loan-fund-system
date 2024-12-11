@@ -107,7 +107,7 @@ Route::prefix('/installment')->group(function (){
     Route::delete('/',[InstallmentController::class,'destroy']);
     Route::delete('/group',[InstallmentController::class,'destroyGroup']);
 });
-Route::prefix('/loan_acc_details')->group(function (){
+Route::prefix('/loan_account')->group(function (){
     Route::get('/',[LoanAccountDetailController::class,'showAll']);
     Route::get('/{acc_id}/{loan_id}',[LoanAccountDetailController::class,'showOne']);
     Route::get('/{acc_id}',[LoanAccountDetailController::class,'showOneByAccount']);

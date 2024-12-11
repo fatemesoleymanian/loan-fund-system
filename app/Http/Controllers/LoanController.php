@@ -11,18 +11,20 @@ use Illuminate\Support\Facades\DB;
 class LoanController extends Controller
 {
     public function create(LoanRequest $request){
-        DB::beginTransaction();
-        try {
-            $validated = $request->validated();
-            $loan = $this->createLoan($validated);
-            $this->createInstallments($loan->id,$validated['installments']);
+        $request->validated();
+        $loan = Loan::create([
+            'title'=>$request->title,
+            'static_fee'=>$request->static_fee,
+            'fee_percent'=>$request->fee_percent,
+            'number_of_installments'=>$request->number_of_installments,
+            'installment_interval'=>$request->installment_interval,
+            'max_amount'=>$request->max_amount,
+            'min_amount'=>$request->min_amount,
+            'emergency'=>$request->emergency,
+            'no_need_to_pay'=>$request->no_need_to_pay,
+        ]);
+        if ($loan) return TransactionController::successResponse('وام با موفقیت ساخته شد.', 201);
 
-            DB::commit();
-            return TransactionController::successResponse('وام جدیدی با موفقیت اضافه شد.', 201);
-        }catch  (\Exception $e) {
-            DB::rollBack();
-            return  TransactionController::errorResponse('خطایی در ایجاد وام و اقساط رخ داد! ' . $e->getMessage());
-        }
     }
     private function createLoan($request){
         return Loan::create([

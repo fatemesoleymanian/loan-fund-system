@@ -83,16 +83,9 @@ class LoanAccountDetailController extends Controller
             DB::rollBack();
         }
     }
-    public function showAll(){
-        $loan_accs = LoanAccount::with(['account','loan'])->get();
-        return response()->json([
-            'data' => $loan_accs,
-            'success' => true
-        ]);
-    }
     public function showOne($acc_id,$loan_id){
         $loan_acc = LoanAccount::with(['account','loan'])->where('account_id', $acc_id)
-        ->where('loan_id',$loan_id)->first();
+            ->where('loan_id',$loan_id)->first();
         if ($loan_acc) return response()->json([
             'data' => $loan_acc,
             'success' => true
@@ -124,4 +117,17 @@ class LoanAccountDetailController extends Controller
             'success' => false
         ],500);
     }
+
+    //DONE
+    public function showAll(){
+        $loan_accs = LoanAccount::get();
+        $paid_amounts = LoanAccount::sum('paid_amount');
+        $amounts = LoanAccount::sum('amount');
+        return response()->json([
+            'amounts' => [$amounts , $amounts - $paid_amounts],
+            'loans' => $loan_accs,
+            'success' => true
+        ]);
+    }
+
 }

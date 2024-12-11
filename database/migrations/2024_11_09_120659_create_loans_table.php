@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('title')->nullable(false);
             $table->decimal('static_fee',10,2)->default(0);
             $table->integer('fee_percent')->default(4);
-            $table->integer('interest')->default(0);
+//            $table->integer('interest')->default(0);
             $table->integer('number_of_installments')->nullable(false);
             $table->integer('installment_interval')->nullable(false)->default(30);
             $table->integer('max_amount')->default(0);

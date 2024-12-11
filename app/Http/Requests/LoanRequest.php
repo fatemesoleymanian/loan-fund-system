@@ -25,31 +25,26 @@ class LoanRequest extends FormRequest
     public function rules()
     {
         return   [
-            'installments' => 'required|array',
-            'principal_amount' => 'required|numeric|min:0',
-            'type' => ['required' , 'in:' .implode(',',Loan::getLoanTypes())],
-            'number_of_installments' => "required",
-            'status' => "required",
-            'year' => "required",
-            'due_date' => "required",
-            'issue_date' => "required",
-            'end_date' => "required",
+            'title' => 'required',
+            'static_fee' => 'required|numeric|min:0',
+            'fee_percent' => 'required|numeric|min:0',
+            'number_of_installments' => 'required|numeric|min:2',
+            'installment_interval' => 'required|numeric|min:0',
+            'max_amount' => 'required|numeric|min:0',
+            'min_amount' => 'required|numeric|min:0',
+            'emergency' => 'required|boolean',
+            'no_need_to_pay' => 'required|boolean',
         ];
     }
     public function messages()
     {
         return [
-            'installments.required'=>'لطفا اقساط را وارد کنید.',
-            'principal_amount.required' => 'لطفا مبلغ وام را انتخاب کنید!',
-            'principal_amount.numeric' => 'لطفا مبلغ وام را به درستی وارد کنید!',
-            'type.required' => 'لطفا نوع وام را وارد کنید!',
-            'type.in' => 'نوع وام صحیح نیست!',
+            'title.required'=>'لطفا عنوان را وارد کنید.',
+            'static_fee.required' => 'لطفا کارمزد ثابت را انتخاب کنید!',
+            'fee_percent.required' => 'لطفا درصد کارمزد را وارد کنید!',
             'number_of_installments.required' => 'لطفا تعداد اقساط را وارد کنید!',
-            'status.required' => 'لطفا وضعیت وام را وارد کنید!',
-            'year.required' => 'لطفا سال جاری را وارد کنید!',
-            'due_date.required' => 'لطفا شروع بازپرداخت را وارد کنید!',
-            'issue_date.required' => 'لطفا تاریخ صدور وام را وارد کنید!',
-            'end_date.required' => 'لطفا تاریخ پایان را وارد کنید!',
+            'max_amount.required' => 'لطفا سقف وام را وارد کنید!',
+            'min_amount.required' => 'لطفا حداقل مبلغ وام را وارد کنید!',
         ];
     }
 }
