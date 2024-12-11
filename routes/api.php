@@ -96,6 +96,7 @@ Route::prefix('/loan')->group(function (){
 });
 Route::prefix('/installment')->group(function (){
     Route::get('/',[InstallmentController::class,'showAll']);
+    Route::get('/search',[InstallmentController::class,'search']);
     Route::get('/{id}',[InstallmentController::class,'showOne']);
     Route::post('/',[InstallmentController::class,'create']);
     Route::post('/group',[InstallmentController::class,'createGroup']);

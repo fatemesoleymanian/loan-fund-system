@@ -101,9 +101,10 @@ class MemberController extends Controller
         ]);
     }
     public function showAll(){
-        $members = Member::whereHas('account',function ($query){
-            $query->where('is_open',true);
-        })->with(['account'])->get();
+//        $members = Member::whereHas('account',function ($query){
+//            $query->where('is_open',true);
+//        })->with(['account'])->get();
+        $members = Member::with(['account'])->get();
         return response()->json([
             'members' => $members,
             'success' => true

@@ -18,9 +18,12 @@ class DepositController extends Controller
             $request->validated();
             $this->updateFundAccBalance($request);
            $this->updateAccountBalance($request);
-           $deposit = Deposit::create([
+            $fund_account = FundAccount::current();
+
+            $deposit = Deposit::create([
                'amount'=>$request->amount,
                'account_id'=>$request->account_id,
+               'fund_account_id'=>$fund_account->id,
                'description'=>$request->description
            ]);
             DB::commit();
@@ -36,7 +39,7 @@ class DepositController extends Controller
         }
     }
     private function updateFundAccBalance($request){
-        $fund_account = FundAccount::latest()->first();
+        $fund_account = FundAccount::current();
         $fund_account->balance += $request->amount;
         $fund_account->total_balance += $request->amount;
         $fund_account->save();

@@ -175,9 +175,44 @@ class InstallmentController extends Controller
         ]);
     }
     public function showAll(){
-        $installments = Installment::with(['loan'])->get();
+        $installments = Installment::get();
         return response()->json([
-            'installment' => $installments,
+            'installments' => $installments,
+            'success' => true
+        ]);
+    }
+    public function search(Request $request){
+        $id = $request->query('account_id');
+        $account_name = $request->query('account_name');
+        $type = $request->query('type');
+        $due_date = $request->query('due_date');
+        $title = $request->query('title');
+        $is_paid = $request->query('is_paid');
+
+        $query = Installment::query();
+
+        if ($id !== null){
+            $query->where('account_id', $id);
+        }
+        if ($account_name !== null){
+            $query->orWhere('account_name', 'LIKE', "%{$account_name}%");
+        }
+        if ($type !== null){
+            $query->orWhere('type', $type);
+        }
+        if ($due_date !== null){
+            $query->orWhere('due_date', $due_date);
+        }
+        if ($title !== null){
+            $query->orWhere('title','LIKE', "%{$title}%");
+        }
+        if ($is_paid !== null){
+           $is_paid ? $query->orWhere('paid_date','!=',null): $query->orWhere('paid_date',null);
+        }
+
+        $installments = $query->get();
+        return response()->json([
+            'installments' => $installments,
             'success' => true
         ]);
     }

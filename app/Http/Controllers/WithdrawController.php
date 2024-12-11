@@ -18,10 +18,11 @@ class WithdrawController extends Controller
             $request->validated();
             $this->updateFundAccBalance($request);
             $this->updateAccountBalance($request);
+            $fund_account = FundAccount::current();
             $withdraw = Withdraw::create([
                 'amount'=>$request->amount,
                 'account_id'=>$request->account_id,
-                'fund_account_id'=>$request->fund_account_id,
+                'fund_account_id'=>$fund_account->id,
                 'description'=>$request->description
             ]);
             DB::commit();
@@ -64,7 +65,7 @@ class WithdrawController extends Controller
         }
     }
     private function updateFundAccBalance($request){
-        $fund_account = FundAccount::find($request->fund_account_id);
+        $fund_account = FundAccount::current();
         $fund_account->balance -= $request->amount;
         $fund_account->total_balance -= $request->amount;
         $fund_account->save();

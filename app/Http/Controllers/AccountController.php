@@ -7,6 +7,7 @@ use App\Http\Requests\AccountRequest;
 use App\Models\Account;
 use App\Models\FundAccount;
 use App\Models\Installment;
+use App\Models\Withdraw;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -117,20 +118,41 @@ class AccountController extends Controller
             return response()->json([
                 'msg' => 'تعداد اقساط پرداخت نشده : '.$installments,
                 'success' => true
-            ],200);
-        }else{
-            $account = Account::where('id',$request->id)->first();
-            $account->status = Account::STATUS_SETTLEMENT;
-            $account->save();
-            return response()->json([
-                'msg' => 'هیچ قسط پرداخت نشده ای وجود ندارد!',
-                'success' => false
             ],400);
+        }else{
+           DB::beginTransaction();
+            try {
+                $account = Account::where('id',$request->id)->first();
+                $fund_account = FundAccount::current();
+               if ($account->balance > 0){
+                   $withdraw = Withdraw::create([
+                       'amount'=>$account->balance,
+                       'account_id'=>$request->id,
+                       'fund_account_id'=>$fund_account->id,
+                       'description'=>'تسویه حساب'
+                   ]);
+               }
+                $fund_account->balance -= $account->balance;
+                $fund_account->total_balance -= $account->balance;
+                $fund_account->save();
+                $account->status = Account::STATUS_SETTLEMENT;
+                $account->balance = 0;
+                $account->save();
+                DB::commit();
+                return response()->json([
+                    'msg' => 'هیچ قسط پرداخت نشده ای وجود ندارد!',
+                    'success' => false
+                ],200);
+            }catch (\Exception $e){
+                DB::rollBack();
+                return TransactionController::errorResponse('خطایی رخ داد! ' . $e->getMessage());
+            }
         }
     }
     public function activate(Request $request){
-        $account = Account::where('id',$request->id)->first();
+        $account = Account::withoutGlobalScope('is_open')->where('id',$request->id)->first();
         $account->status = Account::STATUS_CREDITOR;
+        $account->is_open = true;
         $account->save();
         return response()->json([
             'msg'=>'حساب باموفقیت فعال شد!',
@@ -206,14 +228,20 @@ class AccountController extends Controller
         $id = $request->query('id');
         $member_name = $request->query('member_name');
         $status = $request->query('status');
-            $accounts = Account::where('id', "%{$id}%")
-                ->orWhere('member_name', 'LIKE', "%{$member_name}%")
-                ->orWhere('status', "%{$status}%")
-                ->with(['member'])->get();
+
+        $query = Account::query();
+
+        if ($id !== null){
+            $query->where('id', $id);
+        }
+        if ($member_name !== null){
+            $query->orWhere('member_name', 'LIKE', "%{$member_name}%");
+        }
+        if ($status !== null){
+            $query->orWhere('status', $status);
+        }
+            $accounts = $query->with(['member'])->get();
             return response()->json([
-                'id'=>$id,
-                'member_name'=>$member_name,
-                'status'=>$status,
                 'accounts' => $accounts,
                 'success' => true
             ]);
