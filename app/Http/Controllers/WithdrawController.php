@@ -97,4 +97,11 @@ class WithdrawController extends Controller
             'success' => true
         ]);
     }
+    public function showLatestWithdrawsForAccount($id){
+        $withdraws = Withdraw::where('account_id',$id)->latest()->take(10)->get();
+        return response()->json([
+            'withdraws' => $withdraws,
+            'success' => true
+        ]);
+    }
 }

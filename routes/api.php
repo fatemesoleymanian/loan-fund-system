@@ -80,11 +80,13 @@ Route::prefix('/account')->group(function (){
 Route::prefix('/deposit')->group(function () {
     Route::post('/', [DepositController::class, 'create']);
     Route::get('/', [DepositController::class, 'showAll']);
+    Route::get('/account/latest/{id}', [DepositController::class, 'showLatestDepositsForAccount']);
 });
 Route::prefix('/withdraw')->group(function () {
     Route::post('/', [WithdrawController::class, 'create']);
     Route::put('/closure', [WithdrawController::class, 'closure']);
     Route::get('/', [WithdrawController::class, 'showAll']);
+    Route::get('/account/latest/{id}', [WithdrawController::class, 'showLatestWithdrawsForAccount']);
 });
 Route::prefix('/loan')->group(function (){
     Route::get('/',[LoanController::class,'showAll']);

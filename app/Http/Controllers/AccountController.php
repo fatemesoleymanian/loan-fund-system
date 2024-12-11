@@ -69,7 +69,7 @@ class AccountController extends Controller
             $request->validated();
             $memberController = new MemberController();
             $member = $memberController->updateWithAccountUpdate($request);
-            $account = Account::where('id', $request->id)->update([
+            $account = Account::withoutGlobalScope('is_open')->where('id', $request->id)->update([
                 'member_id' => $request->member_id,
 //                'balance' => $request->balance,
                 'member_name' => $request->full_name,

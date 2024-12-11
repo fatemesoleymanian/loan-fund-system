@@ -36,7 +36,7 @@ class MemberController extends Controller
         DB::beginTransaction();
         try{
             $request->validated();
-            $account = Account::where('id', $request->account_id)->update([
+            $account = Account::withoutGlobalScope('is_open')->where('id', $request->account_id)->update([
                 'member_name' => $request->full_name,
             ]);
             $member = Member::where('id', $request->id)->update([
@@ -104,7 +104,11 @@ class MemberController extends Controller
 //        $members = Member::whereHas('account',function ($query){
 //            $query->where('is_open',true);
 //        })->with(['account'])->get();
-        $members = Member::with(['account'])->get();
+        $members = Member::with([
+            'account' => function($query){
+            $query->withoutGlobalScope('is_open');
+            }
+        ])->get();
         return response()->json([
             'members' => $members,
             'success' => true

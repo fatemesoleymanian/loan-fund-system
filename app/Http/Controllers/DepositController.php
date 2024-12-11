@@ -79,5 +79,12 @@ class DepositController extends Controller
             'success' => true
         ]);
     }
+    public function showLatestDepositsForAccount($id){
+        $deposits = Deposit::where('account_id',$id)->latest()->take(10)->get();
+        return response()->json([
+            'deposits' => $deposits,
+            'success' => true
+        ]);
+    }
 
 }
