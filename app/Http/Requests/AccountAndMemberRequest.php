@@ -25,7 +25,7 @@ class AccountAndMemberRequest extends FormRequest
     public function rules()
     {
         return   [
-//            'member_id' => "required|exists:members,id",
+//            'fund_account_id' => "required|exists:fund_accounts,id",
             'balance' => "required|numeric|min:0",
             'stock_units' => "required",
 //            'member_name' => "required",

@@ -52,6 +52,7 @@ class DepositController extends Controller
             $deposit = Deposit::create([
                 'amount'=>$request['amount'],
                 'account_id'=>$request['account_id'],
+                'fund_account_id'=>$request['fund_account_id'],
                 'description'=>$request['description']
             ]);
             DB::commit();

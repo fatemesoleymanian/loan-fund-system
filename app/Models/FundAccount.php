@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class FundAccount extends Model
 {
     protected $guarded = [];
+    public static function current(){
+        return self::orderBy('created_at','desc')->first();
+    }
     public function getCreatedAtAttribute($val)
     {
         return verta($val)->format('l d %B Y');

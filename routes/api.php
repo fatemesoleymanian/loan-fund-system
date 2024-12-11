@@ -64,15 +64,18 @@ Route::prefix('/member')->group(function (){
     Route::put('/',[MemberController::class,'update']);
 });
 Route::prefix('/account')->group(function (){
-    Route::get('/',[AccountController::class,'showAll']);
+    Route::get('/',[AccountController::class,'showAllOpened']);
+    Route::get('/all',[AccountController::class,'showAll']);
     Route::get('/list',[AccountController::class,'showList']);
-    Route::get('/search={str}',[AccountController::class,'search']);
+    Route::get('/search',[AccountController::class,'search']);
     Route::get('/{id}',[AccountController::class,'showOne']);
     Route::get('/monthly_charge/{id}',[AccountController::class,'showOneWithMonthlyCharge']);
     Route::get('/loan/{id}',[AccountController::class,'showOneWithLoan']);
     Route::post('/',[AccountController::class,'createMemberAndAccount']);
     Route::put('/',[AccountController::class,'update']);
-//    Route::put('/update_stock',[AccountController::class,'updateStocks']);
+    Route::put('/settlement',[AccountController::class,'settlement']);
+    Route::put('/closure',[AccountController::class,'close']);
+    Route::put('/activate',[AccountController::class,'activate']);
 });
 Route::prefix('/deposit')->group(function () {
     Route::post('/', [DepositController::class, 'create']);
