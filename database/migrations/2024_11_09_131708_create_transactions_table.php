@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('loan_id')->nullable(true)->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('loan_account_id')->nullable(true)->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->decimal('amount',10,2)->nullable(false);
             $table->enum('type',['پرداخت ماهیانه','پرداخت قسط','پرداخت وام','پرداخت جریمه','پرداخت کارمزد','واریز','برداشت']);
             $table->text('description')->nullable(true);

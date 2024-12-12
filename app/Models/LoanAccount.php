@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,15 +11,34 @@ class LoanAccount extends Model
     protected $guarded = [];
     public function getCreatedAtAttribute($val)
     {
-        return verta($val)->format('l d %B Y');
+        return verta($val)->format('Y/m/d');
     }
-    public function getUpdatedAtAttribute($val)
+    public function getGrantedAtAttribute($val)
     {
-        return verta($val)->format('l d %B Y');
+        return verta($val)->format('Y/m/d');
     }
+    public function setGrantedAtAttribute($val)
+    {
+        $gregorianDate = Verta::parse($val)->DateTime();
+        $this->attributes['granted_at'] = $gregorianDate;
+    }
+    public function getPayBackAttribute($val)
+    {
+        return verta($val)->format('Y/m/d');
+    }
+    public function setPayBackAttribute($val)
+    {
+        $gregorianDate = Verta::parse($val)->DateTime();
+        $this->attributes['payback_at'] = $gregorianDate;
+    }
+
     public  function loan()
     {
         return $this->belongsTo(Loan::class, 'loan_id');
+    }
+    public  function title()
+    {
+        return $this->belongsTo(Loan::class, 'loan_id')->select('title');
     }
     public  function account()
     {
@@ -28,9 +48,9 @@ class LoanAccount extends Model
     {
         return $this->hasMany(Installment::class, 'loan_id');
     }
-    public function accounts(){
-        return $this->belongsToMany(Account::class,'loan_accounts');
-    }
+//    public function accounts(){
+//        return $this->belongsToMany(Account::class,'loan_accounts');
+//    }
     protected static function boot()
     {
         parent::boot();

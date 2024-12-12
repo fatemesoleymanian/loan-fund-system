@@ -6,7 +6,7 @@ use App\Http\Controllers\CharityController;
 use App\Http\Controllers\DepositController;
 use App\Http\Controllers\FundAccountController;
 use App\Http\Controllers\InstallmentController;
-use App\Http\Controllers\LoanAccountDetailController;
+use App\Http\Controllers\LoanAccountController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MonthlyChargeController;
@@ -90,16 +90,16 @@ Route::prefix('/withdraw')->group(function () {
 });
 Route::prefix('/loan')->group(function (){
     Route::get('/',[LoanController::class,'showAll']);
-    Route::get('/{id}',[LoanController::class,'showOne']);
-    Route::get('/with_inst/{loan_id}',[LoanController::class,'showOneWithInst']);
+//    Route::get('/{id}',[LoanController::class,'showOne']);
+//    Route::get('/with_inst/{loan_id}',[LoanController::class,'showOneWithInst']);
     Route::post('/',[LoanController::class,'create']);
-    Route::put('/',[LoanController::class,'update']);
-    Route::post('/delete',[LoanController::class,'destroy']);
+//    Route::put('/',[LoanController::class,'update']);
+//    Route::post('/delete',[LoanController::class,'destroy']);
 });
 Route::prefix('/installment')->group(function (){
     Route::get('/',[InstallmentController::class,'showAll']);
     Route::get('/search',[InstallmentController::class,'search']);
-    Route::get('/{id}',[InstallmentController::class,'showOne']);
+    Route::get('/count/{account_id}',[InstallmentController::class,'numberOfUnpaidInstallmentsOfAccount']);
     Route::post('/',[InstallmentController::class,'create']);
     Route::post('/group',[InstallmentController::class,'createGroup']);
     Route::put('/',[InstallmentController::class,'update']);
@@ -108,13 +108,13 @@ Route::prefix('/installment')->group(function (){
     Route::delete('/group',[InstallmentController::class,'destroyGroup']);
 });
 Route::prefix('/loan_account')->group(function (){
-    Route::get('/',[LoanAccountDetailController::class,'showAll']);
-    Route::get('/{acc_id}/{loan_id}',[LoanAccountDetailController::class,'showOne']);
-    Route::get('/{acc_id}',[LoanAccountDetailController::class,'showOneByAccount']);
-    Route::get('/{loan_id}',[LoanAccountDetailController::class,'showOneByLoan']);
-    Route::post('/',[LoanAccountDetailController::class,'create']);
-    Route::put('/',[LoanAccountDetailController::class,'update']);
-    Route::delete('/',[LoanAccountDetailController::class,'destroy']);
+    Route::get('/',[LoanAccountController::class,'showAll']);
+    Route::get('/{account_id}',[LoanAccountController::class,'showLoansOfAccount']);
+//    Route::get('/{acc_id}/{loan_id}',[LoanAccountController::class,'showOne']);
+//    Route::get('/{loan_id}',[LoanAccountController::class,'showOneByLoan']);
+    Route::post('/',[LoanAccountController::class,'create']);
+//    Route::put('/',[LoanAccountController::class,'update']);
+//    Route::delete('/',[LoanAccountController::class,'destroy']);
 });
 Route::prefix('/monthly_charge')->group(function (){
     Route::get('/',[MonthlyChargeController::class,'showAll']);

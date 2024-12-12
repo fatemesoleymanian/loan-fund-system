@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,15 +11,25 @@ class Installment extends Model
     protected $guarded = [];
     public function getCreatedAtAttribute($val)
     {
-        return verta($val)->format('l d %B Y');
+        return verta($val)->format('Y/m/d');
     }
-    public function getUpdatedAtAttribute($val)
+    public function getPaidDateAttribute($val)
     {
-        return verta($val)->format('l d %B Y');
+        return verta($val)->format('Y/m/d');
+    }
+    public function setPaidDateAttribute($val)
+    {
+        $gregorianDate = Verta::parse($val)->DateTime();
+        $this->attributes['paid_date'] = $gregorianDate;
     }
     public function getDueDateAttribute($val)
     {
         return verta($val)->format('Y/m/d');
+    }
+    public function setDueDateAttribute($val)
+    {
+        $gregorianDate = Verta::parse($val)->DateTime();
+        $this->attributes['due_date'] = $gregorianDate;
     }
     public  function loan()
     {

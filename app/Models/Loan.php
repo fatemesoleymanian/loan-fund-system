@@ -16,10 +16,6 @@ class Loan extends Model
     {
         return verta($val)->format('l d %B Y');
     }
-//    public function getDueDateAttribute($val)
-//    {
-//        return verta($val)->format('Y/m/d');
-//    }
     protected static function boot()
     {
         parent::boot();

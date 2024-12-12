@@ -16,11 +16,11 @@ return new class extends Migration
         Schema::create('installments', function (Blueprint $table) {
             $table->id();
             //for loan
-            $table->foreignId('loan_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('loan_account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('loan_id')->nullable(true)->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('loan_account_id')->nullable(true)->constrained()->onUpdate('cascade')->onDelete('cascade');
 //            $table->integer('interest')->default(0);//sood
             //for charge
-            $table->foreignId('monthly_charge_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('monthly_charge_id')->nullable(true)->constrained()->onUpdate('cascade')->onDelete('cascade');
             //moshtarak
             $table->foreignId('account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('account_name')->nullable(false);
