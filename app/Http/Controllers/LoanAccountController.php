@@ -107,6 +107,17 @@ class LoanAccountController extends Controller
             ]);
         }
     }
+    function generateDates($startDate, $intervalDays, $count) {
+    $start = Verta::parse($startDate); // Parse the start date
+    $dates = [];
+    
+    for ($i = 0; $i < $count; $i++) {
+        $nextDate = $start->addDays($i * $intervalDays);
+        $dates[] = $nextDate->format('Y/n/j'); // Format the date as "Y/n/j" (1403/10/06, 1403/10/11, etc.)
+    }
+
+    return $dates;
+}
 
     public function showLoansOfAccount($account_id){
         $loan_accs = LoanAccount::with(['title'])->where('account_id', $account_id)->get();
