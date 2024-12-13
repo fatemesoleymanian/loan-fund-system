@@ -6,6 +6,7 @@ use App\Http\Requests\DepositRequest;
 use App\Models\Account;
 use App\Models\Deposit;
 use App\Models\FundAccount;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -86,5 +87,27 @@ class DepositController extends Controller
             'success' => true
         ]);
     }
+    public function search(Request $request){
+        $startSolarDate = $request->query('from');
+        $endSolarDate = $request->query('to');
 
+        $query = Deposit::query();
+        if ($startSolarDate !== null && $endSolarDate !== null) {
+            // Convert solar dates to Gregorian
+            $startDate = Verta::parse($startSolarDate)->setTime(0, 0, 0)->toCarbon();
+            $endDate = Verta::parse($endSolarDate)->setTime(23, 59, 59)->toCarbon();
+
+
+            $deposits = $query->whereBetween('created_at', [$startDate, $endDate])->get();
+            $amounts = $query->whereBetween('created_at', [$startDate, $endDate])->sum('amount');
+        }else{
+            $deposits = $query->get();
+            $amounts = $query->sum('amount');
+        }
+        return response()->json([
+            'amounts'=>$amounts,
+            'deposits' => $deposits,
+            'success' => true
+        ]);
+    }
 }

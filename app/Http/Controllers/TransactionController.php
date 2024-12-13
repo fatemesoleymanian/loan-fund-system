@@ -8,6 +8,7 @@ use App\Models\FundAccount;
 use App\Models\Installment;
 use App\Models\LoanAccount;
 use App\Models\Transaction;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -269,58 +270,81 @@ class TransactionController extends Controller
             'success' => true
         ]);
     }
-    public function search(Request $request)
-    {
-        // Start the query builder for the Transaction model
+//    public function search(Request $request)
+//    {
+//        // Start the query builder for the Transaction model
+//        $query = Transaction::query();
+//
+//        // Apply conditions based on the provided request parameters
+//        if ($request->filled('account_id')) {
+//            $query->where('account_id', $request->account_id);
+//        }
+//
+//        if ($request->filled('amount')) {
+//            $query->where('amount', $request->amount);
+//        }
+//
+//        if ($request->filled('type')) {
+//            $query->where('type', $request->type);
+//        }
+//
+//        if ($request->filled('description')) {
+//            $query->where('description', 'like', '%' . $request->description . '%');
+//        }
+//
+//        if ($request->filled('delay_days')) {
+//            $query->where('delay_days', $request->delay_days);
+//        }
+//
+//        if ($request->filled('fund_account_id')) {
+//            $query->where('fund_account_id', $request->fund_account_id);
+//        }
+//
+//        if ($request->filled('monthly_charge_id')) {
+//            $query->where('monthly_charge_id', $request->monthly_charge_id);
+//        }
+//
+//        if ($request->filled('installment_id')) {
+//            $query->where('installment_id', $request->installment_id);
+//        }
+//
+//        // Date range filtering (optional)
+//        if ($request->filled('start_date') && $request->filled('end_date')) {
+//            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+//        } elseif ($request->filled('start_date')) {
+//            $query->whereDate('created_at', '>=', $request->start_date);
+//        } elseif ($request->filled('end_date')) {
+//            $query->whereDate('created_at', '<=', $request->end_date);
+//        }
+//
+//        // Execute the query with eager loading
+////        $transactions = $query->with(['monthlyCharge', 'installment', 'account', 'fundAccount'])->get();
+//        $transactions = $query->with(['monthlyCharge','installment','account','fundAccount'])->orderByDesc('id')->get();
+//
+//        return response()->json([
+//            'transactions' => $transactions,
+//            'success' => true
+//        ]);
+//    }
+    public function search(Request $request){
+        $startSolarDate = $request->query('from');
+        $endSolarDate = $request->query('to');
+
         $query = Transaction::query();
+        if ($startSolarDate !== null && $endSolarDate !== null) {
+            // Convert solar dates to Gregorian
+            $startDate = Verta::parse($startSolarDate)->setTime(0, 0, 0)->toCarbon();
+            $endDate = Verta::parse($endSolarDate)->setTime(23, 59, 59)->toCarbon();
 
-        // Apply conditions based on the provided request parameters
-        if ($request->filled('account_id')) {
-            $query->where('account_id', $request->account_id);
+
+            $transactions = $query->whereBetween('created_at', [$startDate, $endDate])->get();
+            $amounts = $query->whereBetween('created_at', [$startDate, $endDate])->sum('amount');
+        }else{
+            $transactions = $query->get();
+            $amounts = $query->sum('amount');
         }
-
-        if ($request->filled('amount')) {
-            $query->where('amount', $request->amount);
-        }
-
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-
-        if ($request->filled('description')) {
-            $query->where('description', 'like', '%' . $request->description . '%');
-        }
-
-        if ($request->filled('delay_days')) {
-            $query->where('delay_days', $request->delay_days);
-        }
-
-        if ($request->filled('fund_account_id')) {
-            $query->where('fund_account_id', $request->fund_account_id);
-        }
-
-        if ($request->filled('monthly_charge_id')) {
-            $query->where('monthly_charge_id', $request->monthly_charge_id);
-        }
-
-        if ($request->filled('installment_id')) {
-            $query->where('installment_id', $request->installment_id);
-        }
-
-        // Date range filtering (optional)
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
-        } elseif ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->start_date);
-        } elseif ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->end_date);
-        }
-
-        // Execute the query with eager loading
-//        $transactions = $query->with(['monthlyCharge', 'installment', 'account', 'fundAccount'])->get();
-        $transactions = $query->with(['monthlyCharge','installment','account','fundAccount'])->orderByDesc('id')->get();
-
         return response()->json([
+            'amounts'=>$amounts,
             'transactions' => $transactions,
             'success' => true
         ]);

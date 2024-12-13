@@ -80,6 +80,7 @@ Route::prefix('/account')->group(function (){
 Route::prefix('/deposit')->group(function () {
     Route::post('/', [DepositController::class, 'create']);
     Route::get('/', [DepositController::class, 'showAll']);
+    Route::get('/search', [DepositController::class, 'search']);
     Route::get('/account/latest/{id}', [DepositController::class, 'showLatestDepositsForAccount']);
 });
 Route::prefix('/withdraw')->group(function () {
@@ -135,7 +136,7 @@ Route::prefix('/transaction')->group(function (){
         Route::get('/type',[TransactionController::class,'showAllByType']);
         Route::get('/acc/{acc_id}/chrg/{charg_id}',[TransactionController::class,'showByAccAndCharge']);
         Route::get('/acc/{acc_id}/loan_inst/{loan_id}',[TransactionController::class,'showAccInstallmentsByLoan']);
-        Route::get('/search={str}',[TransactionController::class,'search']);
+        Route::get('/search',[TransactionController::class,'search']);
         Route::get('/{id}',[TransactionController::class,'showOne']);
         Route::post('/',[TransactionController::class,'create']);
         Route::put('/',[TransactionController::class,'update']);
