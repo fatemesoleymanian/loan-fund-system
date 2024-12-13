@@ -7,6 +7,7 @@ use App\Http\Requests\DepositRequest;
 use App\Models\Account;
 use App\Models\FundAccount;
 use App\Models\Withdraw;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -106,20 +107,22 @@ class WithdrawController extends Controller
     }
 
     public function search(Request $request){
-        $from = $request->query('from');
-        $to = $request->query('to');
-$startSolarDate = '1403/10/01';
-    $endSolarDate = '1403/10/30';
+        $startSolarDate = $request->query('from');
+        $endSolarDate = $request->query('to');
 
-    // Convert solar dates to Gregorian
-    $startDate = Verta::parse($startSolarDate)->startOfDay()->toCarbon();
-    $endDate = Verta::parse($endSolarDate)->endOfDay()->toCarbon();
+        $query = Withdraw::query();
+        if ($startSolarDate !== null && $endSolarDate !== null) {
+            // Convert solar dates to Gregorian
+            $startDate = Verta::parse($startSolarDate)->startOfDay()->toCarbon();
+            $endDate = Verta::parse($endSolarDate)->endOfDay()->toCarbon();
 
-    // Query withdraws within the date range
-    $withdraws = Withdraw::whereBetween('created_at', [$startDate, $endDate])->get();
-
-        $withdraws = $query->get();
-        $amounts = $query->sum('amount');
+            // Query withdraws within the date range
+            $withdraws = $query->whereBetween('created_at', [$startDate, $endDate])->get();
+            $amounts = $query->whereBetween('created_at', [$startDate, $endDate])->sum('amount');
+        }else{
+            $withdraws = $query->get();
+            $amounts = $query->sum('amount');
+        }
         return response()->json([
             'amounts'=>$amounts,
             'withdraws' => $withdraws,

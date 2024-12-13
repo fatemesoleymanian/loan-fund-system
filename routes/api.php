@@ -86,6 +86,7 @@ Route::prefix('/withdraw')->group(function () {
     Route::post('/', [WithdrawController::class, 'create']);
     Route::put('/closure', [WithdrawController::class, 'closure']);
     Route::get('/', [WithdrawController::class, 'showAll']);
+    Route::get('/search', [WithdrawController::class, 'search']);
     Route::get('/account/latest/{id}', [WithdrawController::class, 'showLatestWithdrawsForAccount']);
 });
 Route::prefix('/loan')->group(function (){
