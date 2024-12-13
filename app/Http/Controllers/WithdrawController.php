@@ -113,8 +113,9 @@ class WithdrawController extends Controller
         $query = Withdraw::query();
         if ($startSolarDate !== null && $endSolarDate !== null) {
             // Convert solar dates to Gregorian
-            $startDate = Verta::parse($startSolarDate)->startOfDay()->toCarbon();
-            $endDate = Verta::parse($endSolarDate)->endOfDay()->toCarbon();
+            $startDate = Verta::parse($startSolarDate)->setTime(0, 0, 0)->toCarbon();
+            $endDate = Verta::parse($endSolarDate)->setTime(23, 59, 59)->toCarbon();
+
 
             // Query withdraws within the date range
             $withdraws = $query->whereBetween('created_at', [$startDate, $endDate])->get();
