@@ -237,8 +237,11 @@ class TransactionController extends Controller
     }
     public function showAll(): \Illuminate\Http\JsonResponse
     {
-        $transactions = Transaction::with(['monthlyCharge','installment','account','fundAccount'])->orderByDesc('id')->get();
+//        $transactions = Transaction::with(['monthlyCharge','installment','account','fundAccount'])->orderByDesc('id')->get();
+        $transactions = Transaction::orderByDesc('id')->get();
+        $amounts = Transaction::sum('amount');
         return response()->json([
+            'amounts' => $amounts,
             'transactions' => $transactions,
             'success' => true
         ]);

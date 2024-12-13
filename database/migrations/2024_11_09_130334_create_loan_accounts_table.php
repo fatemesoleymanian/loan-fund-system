@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('no_of_paid_inst')->nullable(false)->default(0);
 //            $table->integer('interest')->default(0);
             $table->decimal('fee_amount',10,2)->nullable(false);
-            $table->string('description');
+            $table->string('description')->nullable(true);
             $table->string('account_name');
             $table->timestamps();
         });

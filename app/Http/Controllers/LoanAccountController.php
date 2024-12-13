@@ -9,6 +9,7 @@ use App\Models\Installment;
 use App\Models\Loan;
 use App\Models\LoanAccount;
 use App\Models\Transaction;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -28,15 +29,14 @@ class LoanAccountController extends Controller
             $loan_transaction = $this->logging($request,$loan_account->id,$loan,true);
             $fee_transaction = $this->logging($request,$loan_account->id,$loan,false);
 
-            if ($loan->no_need_to_pay && $request->number_of_installments === 0){
-
-            }else{
-                $installments = $this->doPartition($request,$loan,$loan_account->id);
+            if (!$loan->no_need_to_pay && $request->number_of_installments != 0){
+                $this->doPartition($request,$loan,$loan_account->id);
             }
             DB::commit();
             $installments = Installment::where('loan_account_id',$loan_account->id)->get();
             return response()->json([
                 'installments' => $installments,
+                'msg' => 'با موفقیت اعطا شد!',
                 'success' => true
             ]);
         }catch (\Exception $e){
@@ -92,33 +92,115 @@ class LoanAccountController extends Controller
     }
     private function doPartition($request,$loan,$loan_account_id){
         $amount = ceil(((int)$request->amount / (int)$request->number_of_installments) / 1000) * 1000;
-        for ($i = 0; $i < $request->number_of_installments; $i++) {
+        $dates = $this->generateDates($request->payback_at,$loan->installment_interval,$request->number_of_installments);
+        forEach ($dates as $date) {
             Installment::create([
                 'loan_id' => $loan->id,
                 'loan_account_id' => $loan_account_id,
                 'account_id' => $request->account_id,
                 'account_name' => $request->account_name,
-                'inst_number' => $i+1,
+                'inst_number' => $date['index'],
                 'amount' => $amount,
-                'due_date' => $i, //
+                'due_date' => $date['date'],
+                'paid_date' => null,
                 'delay_days' => 0,
                 'type' => 2,
                 'title' => $loan->title,
             ]);
         }
     }
-    function generateDates($startDate, $intervalDays, $count) {
+    private function generateDates($startDate, $intervalDays, $count) {
     $start = Verta::parse($startDate); // Parse the start date
     $dates = [];
-    
+
     for ($i = 0; $i < $count; $i++) {
+        $start = Verta::parse($startDate);
         $nextDate = $start->addDays($i * $intervalDays);
-        $dates[] = $nextDate->format('Y/n/j'); // Format the date as "Y/n/j" (1403/10/06, 1403/10/11, etc.)
+        $dates[] = [
+            'index' => $i+1,
+            'date' => $nextDate->format('Y/m/d') // Format the date as "Y/n/j" (1403/10/06, 1403/10/11, etc.)
+        ];
     }
 
     return $dates;
 }
+    public function search(Request $request){
+        $account_id = $request->query('account_id');
+        $account_name = $request->query('account_name');
+        $loan_account_id = $request->query('loan_account_id');
+        $amount = $request->query('amount');
+        $title = $request->query('title');
+        $is_not_paid = $request->query('is_not_paid');
 
+        $query = LoanAccount::query();
+
+        if ($account_id !== null){
+            $query->where('account_id', $account_id);
+        }
+        if ($account_name !== null){
+            $query->orWhere('account_name', 'LIKE', "%{$account_name}%");
+        }
+        if ($loan_account_id !== null){
+            $query->orWhere('id', $loan_account_id);
+        }
+        if ($amount !== null){
+            $query->orWhere('amount', $amount);
+        }
+        if ($title !== null){
+            $query->orWhere('description','LIKE', "%{$title}%");
+        }
+        if ($is_not_paid !== null){
+            if ($is_not_paid === 'true'){
+                $query->orWhere('paid_amount','<','amount');
+            }else{
+                $query->orWhere('paid_amount','>=','amount');
+            }
+        }
+
+        $loan_accs = $query->get();
+        $paid_amounts = $query->sum('paid_amount');
+        $amounts = $query->sum('amount');
+        return response()->json([
+            'amounts' => [$amounts , $amounts - $paid_amounts],
+            'loans' => $loan_accs,
+            'success' => true
+        ]);
+    }
+    public function destroy(Request $request){
+        DB::beginTransaction();
+        try {
+            $loan_account = LoanAccount::where('id',$request->id)->first();
+
+            $account = Account::where('id',$loan_account->account_id)->first();
+
+            $unpaid_inst = InstallmentController::numberOfUnpaidInstallmentsOfAccountt($account->id);
+
+            $fund_account = FundAccount::where('id',$loan_account->fund_account_id)->first();
+
+            $account->balance += $loan_account->fee_amount;
+
+            $fund_account->fees -= $loan_account->fee_amount;
+            $fund_account->balance += $loan_account->amount;
+            $fund_account->total_balance += $loan_account->amount;
+            $fund_account->total_balance -= $loan_account->fee_amount;
+
+
+            $loan_account->delete();
+            $account->status = $unpaid_inst >0 ?  Account::STATUS_DEBTOR : Account::STATUS_CREDITOR ;
+            $fund_account->save();
+            $account->save();
+
+            DB::commit();
+            return response()->json([
+                'msg' => 'وام با موفقیت حذف گردید.',
+                'success' => true
+            ]);
+        }catch (\Exception $e){
+            DB::rollBack();
+            return TransactionController::errorResponse('خطایی رخ داد! ' . $e->getMessage());
+        }
+
+    }
     public function showLoansOfAccount($account_id){
         $loan_accs = LoanAccount::with(['title'])->where('account_id', $account_id)->get();
          return response()->json([
@@ -126,7 +208,6 @@ class LoanAccountController extends Controller
             'success' => true
         ]);
     }
-    //DONE
     public function showAll(){
         $loan_accs = LoanAccount::get();
         $paid_amounts = LoanAccount::sum('paid_amount');

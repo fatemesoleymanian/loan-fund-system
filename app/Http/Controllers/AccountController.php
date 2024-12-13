@@ -96,7 +96,7 @@ class AccountController extends Controller
 
     }
     public function close(Request $request){
-        $this->checkForSettelment($request);
+       return $this->checkForSettelment($request);
     }
     private function checkForSettelment($request){
         $installments = Installment::where('account_id',$request->id)->where('paid_date',null)->count();
@@ -106,6 +106,7 @@ class AccountController extends Controller
                 'success' => false
             ],400);
         }else{
+            $this->settlement($request);
            $account = Account::where('id',$request->id)->first();
            $account->is_open = false;
            $account->save();

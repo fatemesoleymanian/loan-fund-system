@@ -15,12 +15,14 @@ class Installment extends Model
     }
     public function getPaidDateAttribute($val)
     {
-        return verta($val)->format('Y/m/d');
+       return $val == null ? null : verta($val)->format('Y/m/d');
     }
     public function setPaidDateAttribute($val)
     {
-        $gregorianDate = Verta::parse($val)->DateTime();
-        $this->attributes['paid_date'] = $gregorianDate;
+        if($val != null){
+            $gregorianDate = Verta::parse($val)->DateTime();
+            $this->attributes['paid_date'] = $gregorianDate;
+        }
     }
     public function getDueDateAttribute($val)
     {

@@ -28,7 +28,7 @@ class LoanRequest extends FormRequest
             'title' => 'required',
             'static_fee' => 'required|numeric|min:0',
             'fee_percent' => 'required|numeric|min:0',
-            'number_of_installments' => 'required|numeric|min:2',
+            'number_of_installments' => 'required|numeric|min:0',
             'installment_interval' => 'required|numeric|min:0',
             'max_amount' => 'required|numeric|min:0',
             'min_amount' => 'required|numeric|min:0',

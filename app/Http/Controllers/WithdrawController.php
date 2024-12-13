@@ -104,4 +104,17 @@ class WithdrawController extends Controller
             'success' => true
         ]);
     }
+
+    public function search(Request $request){
+        $from = $request->query('from');
+        $to = $request->query('to');
+
+        $withdraws = $query->get();
+        $amounts = $query->sum('amount');
+        return response()->json([
+            'amounts'=>$amounts,
+            'withdraws' => $withdraws,
+            'success' => true
+        ]);
+    }
 }

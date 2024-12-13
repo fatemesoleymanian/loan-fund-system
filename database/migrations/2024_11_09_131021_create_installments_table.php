@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('inst_number')->nullable(false)->default('1');
             $table->decimal('amount',10,2)->nullable(false);
             $table->timestamp('due_date');//tarikhe saresis
-            $table->timestamp('paid_date')->nullable(true);//tarikhe pardakht
+            $table->timestamp('paid_date')->nullable(true)->default(null);//tarikhe pardakht
             $table->integer('delay_days')->default(0);
             $table->integer('type')->nullable(false);//1 => mahiane  & 2 => vam
             $table->string('title')->nullable(false);//esme mahiane ya emse vam
