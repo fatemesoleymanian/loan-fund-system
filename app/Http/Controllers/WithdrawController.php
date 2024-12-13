@@ -108,6 +108,15 @@ class WithdrawController extends Controller
     public function search(Request $request){
         $from = $request->query('from');
         $to = $request->query('to');
+$startSolarDate = '1403/10/01';
+    $endSolarDate = '1403/10/30';
+
+    // Convert solar dates to Gregorian
+    $startDate = Verta::parse($startSolarDate)->startOfDay()->toCarbon();
+    $endDate = Verta::parse($endSolarDate)->endOfDay()->toCarbon();
+
+    // Query withdraws within the date range
+    $withdraws = Withdraw::whereBetween('created_at', [$startDate, $endDate])->get();
 
         $withdraws = $query->get();
         $amounts = $query->sum('amount');
