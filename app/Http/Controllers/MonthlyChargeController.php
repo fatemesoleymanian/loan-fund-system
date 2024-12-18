@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MonthlyChargeRequest;
+use App\Models\Account;
+use App\Models\Installment;
 use App\Models\MonthlyCharge;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MonthlyChargeController extends Controller
 {
@@ -43,11 +47,21 @@ class MonthlyChargeController extends Controller
         ],500);
     }
     public function destroy(Request $request){
-        $monthlyCharge = MonthlyCharge::where('id', $request->id)->delete();
-        return response()->json([
-            'msg' => 'ماهیانه با موفقیت حذف گردید.',
-            'success' => true
-        ]);
+        DB::beginTransaction();
+        try {
+            $monthlyCharge = MonthlyCharge::where('id', $request->id)->first();
+            Installment::where('monthly_charge_id',$monthlyCharge->id)->where('paid_date',null)->delete();
+            $monthlyCharge->delete();
+            DB::commit();
+            return response()->json([
+                'msg' => 'ماهیانه با موفقیت حذف گردید.',
+                'success' => true
+            ]);
+        }catch  (\Exception $e) {
+            DB::rollBack();
+            return  TransactionController::errorResponse('خطایی رخ داد! ' . $e->getMessage());
+        }
+
     }
     public function showOne($id){
         $monthlyCharge = MonthlyCharge::with(['accounts'])->where('id', $id)->first();
@@ -61,17 +75,31 @@ class MonthlyChargeController extends Controller
         ]);
     }
     public function showAll(){
-        $monthlyCharges = MonthlyCharge::with(['accounts'])->get();
-        return response()->json([
-            'monthly_charges' => $monthlyCharges,
-            'success' => true
-        ]);
-    }
-    public function showList(){
         $monthlyCharges = MonthlyCharge::all();
         return response()->json([
             'monthly_charges' => $monthlyCharges,
             'success' => true
         ]);
+    }
+    public function checkBeforeApply(Request $request){
+        $names = '';
+        foreach($request->accounts as $account){
+            $acc = Installment::where('account_id' , $account)->where('type',1)->where('year',$request->year)->first();
+            if ($acc) $names .= $acc->account_name.', ';
+        }
+       return TransactionController::successResponse($names !== '' ? $names.' دارای ماهیانه در سال انتخابی هستند. آیا از تنظیم ماهیانه برای این حساب ها مطمئن هستید؟ با زدن دکمه ثبت ماهیانه پیشین لغو میگردد.!':' آیا از تنظیم ماهیانه برای این حساب ها مطمئن هستید؟ ',200);
+    }
+    public function applyChargeForAccounts(Request $request){
+        $accounts = [];
+        foreach ($request->accounts as $account){
+            $acc = Account::where('id',$account)->first();
+            array_push($accounts,[
+                'account_id' => $acc->id ,
+                'account_name'=>$acc->member_name ,
+                'stock_units' => $acc->stock_units
+        ]);
+        }
+        $charge = MonthlyCharge::where('id',$request->monthly_charge_id)->first();
+        //amount // title  // year // from // to
     }
 }

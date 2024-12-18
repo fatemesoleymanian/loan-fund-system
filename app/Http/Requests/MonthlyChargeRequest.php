@@ -31,7 +31,7 @@ class MonthlyChargeRequest extends FormRequest
         return [
 //            'fund_account_id.required' => 'لطفا نام صندوق را وارد کنید!',
 //            'fund_account_id.exists' => 'صندوق وجود ندارد!',
-            'year.required' => 'لطفا سال جاری را وارد کنید!',
+            'year.required' => 'لطفا سال را وارد کنید!',
             'title.required' => 'لطفا عنوان را وارد کنید!',
             'amount.required' => 'لطفا مبلغ ماهیانه را وارد کنید!',
 //            'amount.numeric' => 'لطفا مبلغ ماهیانه را به درستی وارد کنید!',

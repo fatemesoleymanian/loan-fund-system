@@ -21,6 +21,7 @@ return new class extends Migration
 //            $table->integer('interest')->default(0);//sood
             //for charge
             $table->foreignId('monthly_charge_id')->nullable(true)->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->integer('year')->nullable(true);
             //moshtarak
             $table->foreignId('account_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('account_name')->nullable(false);

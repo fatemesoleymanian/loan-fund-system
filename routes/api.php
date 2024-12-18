@@ -116,20 +116,20 @@ Route::prefix('/loan_account')->group(function (){
 });
 Route::prefix('/monthly_charge')->group(function (){
     Route::get('/',[MonthlyChargeController::class,'showAll']);
-    Route::get('/list',[MonthlyChargeController::class,'showList']);
     Route::get('/{id}',[MonthlyChargeController::class,'showOne']);
     Route::post('/',[MonthlyChargeController::class,'create']);
     Route::put('/',[MonthlyChargeController::class,'update']);
     Route::post('/delete',[MonthlyChargeController::class,'destroy']);
+    Route::post('/check_before_apply',[MonthlyChargeController::class,'checkBeforeApply']);
 });
-Route::prefix('/monthly_charge_member')->group(function (){
-    Route::get('/',[MonthlyChargeAccountController::class,'showAll']);
-    Route::get('/{charge_id}',[MonthlyChargeAccountController::class,'showAllByCharge']);
-    Route::get('/{member_id}',[MonthlyChargeAccountController::class,'showOneByMember']);
-    Route::post('/',[MonthlyChargeAccountController::class,'create']);
-    Route::put('/',[MonthlyChargeAccountController::class,'update']);
-    Route::delete('/',[MonthlyChargeAccountController::class,'destroy']);
-});
+//Route::prefix('/monthly_charge_member')->group(function (){
+//    Route::get('/',[MonthlyChargeAccountController::class,'showAll']);
+//    Route::get('/{charge_id}',[MonthlyChargeAccountController::class,'showAllByCharge']);
+//    Route::get('/{member_id}',[MonthlyChargeAccountController::class,'showOneByMember']);
+//    Route::post('/',[MonthlyChargeAccountController::class,'create']);
+//    Route::put('/',[MonthlyChargeAccountController::class,'update']);
+//    Route::delete('/',[MonthlyChargeAccountController::class,'destroy']);
+//});
 Route::prefix('/transaction')->group(function (){
         Route::get('/',[TransactionController::class,'showAll']);
         Route::get('/account',[TransactionController::class,'showAllByAccount']);
