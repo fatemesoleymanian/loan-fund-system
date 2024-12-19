@@ -108,8 +108,10 @@ class InstallmentController extends Controller
             $query->orWhere('type', (int)$type);
         }
         if ($due_date !== null){
+            // Convert Solar date to Gregorian format
             $gregorian_due_date = Verta::parse($due_date)->DateTime()->format('Y-m-d');
-            $query->orWhere('due_date', $gregorian_due_date);
+            // Use whereDate for date-only comparison
+            $query->orWhereDate('due_date', '=', $gregorian_due_date);
         }
         if ($title !== null){
             $query->orWhere('title','LIKE', "%{$title}%");
