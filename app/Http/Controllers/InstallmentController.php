@@ -107,7 +107,8 @@ class InstallmentController extends Controller
             $query->orWhere('type', (int)$type);
         }
         if ($due_date !== null){
-            $query->orWhere('due_date', $due_date);
+            $gregorian_due_date = Verta::parse($due_date)->DateTime()->format('Y-m-d');
+            $query->orWhere('due_date', $gregorian_due_date);
         }
         if ($title !== null){
             $query->orWhere('title','LIKE', "%{$title}%");
