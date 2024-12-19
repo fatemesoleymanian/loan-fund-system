@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\InstallmentPaymentRequest;
 use App\Http\Requests\InstallmentRequest;
 use App\Models\Installment;
+use App\Models\Transaction;
 use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -77,8 +79,10 @@ class InstallmentController extends Controller
 //            'success' => false
 //        ]);
 //    }
+
+
     public function showAll(){
-        $installments = Installment::where('delay_days','>',0)->get();
+        $installments = Installment::where('paid_date',null)->orderBy('due_date','asc')->get();
         return response()->json([
             'installments' => $installments,
             'success' => true
@@ -92,7 +96,6 @@ class InstallmentController extends Controller
         $due_date = $request->query('due_date');
         $title = $request->query('title');
         $is_paid = $request->query('is_paid');
-        $gregorian_due_date = null;
         $query = Installment::query();
 
         if ($id !== null){
@@ -123,11 +126,9 @@ class InstallmentController extends Controller
         $installments = $query->get();
         return response()->json([
             'installments' => $installments,
-            'd' => $gregorian_due_date,
             'success' => true
         ]);
     }
-
     public function numberOfUnpaidInstallmentsOfAccount($account_id){
         $count = Installment::where('account_id',$account_id)->where('paid_date',null)->count();
         return response()->json([
@@ -137,5 +138,38 @@ class InstallmentController extends Controller
     }
     public static function numberOfUnpaidInstallmentsOfAccountt($account_id){
        return Installment::where('account_id',$account_id)->where('paid_date',null)->count();
+    }
+    public function showFees(Request $request){
+        $startSolarDate = $request->query('from');
+        $endSolarDate = $request->query('to');
+
+        $query = Transaction::query()->where('type',Transaction::TYPE_FEE);
+        if ($startSolarDate !== null && $endSolarDate !== null) {
+            // Convert solar dates to Gregorian
+            $startDate = Verta::parse($startSolarDate)->setTime(0, 0, 0)->toCarbon();
+            $endDate = Verta::parse($endSolarDate)->setTime(23, 59, 59)->toCarbon();
+
+
+            $transactions = $query->whereBetween('created_at', [$startDate, $endDate])->get();
+            $amounts = $query->whereBetween('created_at', [$startDate, $endDate])->sum('amount');
+        }else{
+            $transactions = $query->get();
+            $amounts = $query->sum('amount');
+        }
+        return response()->json([
+            'amounts'=>$amounts,
+            'fees' => $transactions,
+            'success' => true
+        ]);
+    }
+
+    public function pay(InstallmentPaymentRequest $request){
+
+    }
+    private function payCharge(){
+
+    }
+    private function payLoanInstallment(){
+
     }
 }

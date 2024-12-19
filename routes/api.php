@@ -101,6 +101,7 @@ Route::prefix('/loan')->group(function (){
 Route::prefix('/installment')->group(function (){
     Route::get('/',[InstallmentController::class,'showAll']);
     Route::get('/search',[InstallmentController::class,'search']);
+    Route::get('/fee_report',[InstallmentController::class,'showFees']);
     Route::get('/count/{account_id}',[InstallmentController::class,'numberOfUnpaidInstallmentsOfAccount']);
     Route::post('/',[InstallmentController::class,'create']);
     Route::post('/group',[InstallmentController::class,'createGroup']);
@@ -122,14 +123,6 @@ Route::prefix('/monthly_charge')->group(function (){
     Route::post('/check_before_apply',[MonthlyChargeController::class,'checkBeforeApply']);
     Route::post('/apply_to_accounts',[MonthlyChargeController::class,'applyChargeForAccounts']);
 });
-//Route::prefix('/monthly_charge_member')->group(function (){
-//    Route::get('/',[MonthlyChargeAccountController::class,'showAll']);
-//    Route::get('/{charge_id}',[MonthlyChargeAccountController::class,'showAllByCharge']);
-//    Route::get('/{member_id}',[MonthlyChargeAccountController::class,'showOneByMember']);
-//    Route::post('/',[MonthlyChargeAccountController::class,'create']);
-//    Route::put('/',[MonthlyChargeAccountController::class,'update']);
-//    Route::delete('/',[MonthlyChargeAccountController::class,'destroy']);
-//});
 Route::prefix('/transaction')->group(function (){
         Route::get('/',[TransactionController::class,'showAll']);
         Route::get('/account',[TransactionController::class,'showAllByAccount']);
