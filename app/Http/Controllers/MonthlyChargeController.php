@@ -101,5 +101,7 @@ class MonthlyChargeController extends Controller
         }
         $charge = MonthlyCharge::where('id',$request->monthly_charge_id)->first();
         //amount // title  // year // from // to
+
     }
+
 }
