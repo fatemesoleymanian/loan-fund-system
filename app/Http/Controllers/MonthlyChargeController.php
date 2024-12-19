@@ -103,5 +103,20 @@ class MonthlyChargeController extends Controller
         //amount // title  // year // from // to
 
     }
+    function generatePeriods($startDate, $endDate, $intervalDays = 29)
+{
+    $start = Verta::parse($startDate);
+    $end = Verta::parse($endDate);
+    
+    $periods = [];
+    $currentDate = $start;
+
+    while ($currentDate->lte($end)) {
+        $periods[] = $currentDate->format('Y/m/d');
+        $currentDate->addDays($intervalDays);
+    }
+
+    return $periods;
+}
 
 }
