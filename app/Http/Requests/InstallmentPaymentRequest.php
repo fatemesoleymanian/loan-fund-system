@@ -43,12 +43,27 @@ class InstallmentPaymentRequest extends FormRequest
     public function messages()
     {
         return [
-            'member_id.required' => 'لطفا عضو مربوطه را انتخاب کنید!',
-//            'balance.required' => 'لطفا موجودی حساب را وارد کنید!',
-            'stock_units.required' => 'لطفا تعداد سهم را وارد کنید!',
-            'member_name.required' => 'لطفا نام عضو مربوطه را وارد کنید!',
-            'status.required' => 'لطفا وضعیت حساب را وارد کنید!',
-            'is_open.required' => 'لطفا باز/بسته بودن حساب را وارد کنید!',
+            'id.required' => 'لطفا قسط مربوطه را انتخاب کنید!',
+            'id.exists' => 'قسط انتخاب شده معتبر نیست!',
+            'loan_id.exists' => 'شناسه وام معتبر نیست!',
+            'loan_account_id.exists' => 'شناسه حساب وام معتبر نیست!',
+            'monthly_charge_id.exists' => 'شناسه شارژ ماهانه معتبر نیست!',
+            'account_id.required' => 'لطفا حساب مربوطه را انتخاب کنید!',
+            'account_id.exists' => 'شناسه حساب معتبر نیست!',
+            'account_name.required' => 'لطفا نام حساب را وارد کنید!',
+            'year.numeric' => 'سال باید عددی باشد!',
+            'inst_number.required' => 'لطفا شماره قسط را وارد کنید!',
+            'inst_number.numeric' => 'شماره قسط باید عددی باشد!',
+            'amount.required' => 'لطفا مبلغ را وارد کنید!',
+            'amount.numeric' => 'مبلغ باید عددی باشد!',
+            'amount.min' => 'مبلغ نمی‌تواند منفی باشد!',
+            'due_date.required' => 'لطفا تاریخ سررسید را وارد کنید!',
+            'paid_date.required' => 'لطفا تاریخ پرداخت را وارد کنید!',
+            'delay_days.required' => 'لطفا تعداد روزهای تاخیر را وارد کنید!',
+            'type.required' => 'لطفا نوع را انتخاب کنید!',
+            'type.min' => 'نوع باید حداقل ۱ باشد!',
+            'type.max' => 'نوع نمی‌تواند بیشتر از ۲ باشد!',
+            'title.required' => 'لطفا عنوان را وارد کنید!',
         ];
     }
 }
