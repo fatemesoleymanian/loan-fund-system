@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\Installment;
 use App\Models\MonthlyCharge;
 use App\Models\Transaction;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -90,33 +91,64 @@ class MonthlyChargeController extends Controller
        return TransactionController::successResponse($names !== '' ? $names.' دارای ماهیانه در سال انتخابی هستند. آیا از تنظیم ماهیانه برای این حساب ها مطمئن هستید؟ با زدن دکمه ثبت ماهیانه پیشین لغو میگردد.!':' آیا از تنظیم ماهیانه برای این حساب ها مطمئن هستید؟ ',200);
     }
     public function applyChargeForAccounts(Request $request){
-        $accounts = [];
-        foreach ($request->accounts as $account){
-            $acc = Account::where('id',$account)->first();
-            array_push($accounts,[
-                'account_id' => $acc->id ,
-                'account_name'=>$acc->member_name ,
-                'stock_units' => $acc->stock_units
-        ]);
+      DB::beginTransaction();
+        try {
+            $accounts = [];
+            foreach ($request->accounts as $account){
+                $acc = Account::where('id',$account)->first();
+                array_push($accounts,[
+                    'account_id' => $acc->id ,
+                    'account_name'=>$acc->member_name ,
+                    'stock_units' => $acc->stock_units
+                ]);
+            }
+            $charge = MonthlyCharge::where('id',$request->monthly_charge_id)->first();
+            $dates = $this->generatePeriods($request->from,$request->to);
+
+            foreach ($accounts as $account){
+                $this->doPartition($request,$account,$charge,$dates);
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'msg' => 'ماهیانه باموفقیت تنظیم شد.'
+            ]);
+        }catch  (\Exception $e) {
+            DB::rollBack();
+            return  TransactionController::errorResponse('خطایی رخ داد! ' . $e->getMessage());
         }
-        $charge = MonthlyCharge::where('id',$request->monthly_charge_id)->first();
-        //amount // title  // year // from // to
 
     }
-    function generatePeriods($startDate, $endDate, $intervalDays = 29)
-{
-    $start = Verta::parse($startDate);
-    $end = Verta::parse($endDate);
-    
-    $periods = [];
-    $currentDate = $start;
-
-    while ($currentDate->lte($end)) {
-        $periods[] = $currentDate->format('Y/m/d');
-        $currentDate->addDays($intervalDays);
+    private function doPartition($request,$account,$charge,$dates){
+        for ($i=0; $i < sizeof($dates) ; $i++) {
+            Installment::create([
+                'monthly_charge_id' => $request->monthly_charge_id,
+                'year' => $request->year,
+                'account_id' => $account['account_id'],
+                'account_name' => $account['account_name'],
+                'inst_number' => $i+1,
+                'amount' => (int)$account['stock_units'] * $charge->amount,
+                'due_date' => $dates[$i],
+                'paid_date' => null,
+                'delay_days' => 0,
+                'type' => 1,
+                'title' => $charge->title
+            ]);
+        }
     }
-
-    return $periods;
-}
+    private function generatePeriods($startDate, $endDate)
+    {
+        $start = Verta::parse($startDate);
+        $end = Verta::parse($endDate);
+        $periods = [];
+        while ($start <= $end) {
+            $periods[] = $start->format('Y/m/d');
+            if ($start->month < 7) $start->addDays(31);
+            elseif ($start->month < 12) $start->addDays(30);
+            else $start->addDays(29);
+        }
+        return $periods;
+    }
 
 }

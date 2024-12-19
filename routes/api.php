@@ -116,11 +116,11 @@ Route::prefix('/loan_account')->group(function (){
 });
 Route::prefix('/monthly_charge')->group(function (){
     Route::get('/',[MonthlyChargeController::class,'showAll']);
-    Route::get('/{id}',[MonthlyChargeController::class,'showOne']);
     Route::post('/',[MonthlyChargeController::class,'create']);
     Route::put('/',[MonthlyChargeController::class,'update']);
     Route::post('/delete',[MonthlyChargeController::class,'destroy']);
     Route::post('/check_before_apply',[MonthlyChargeController::class,'checkBeforeApply']);
+    Route::post('/apply_to_accounts',[MonthlyChargeController::class,'applyChargeForAccounts']);
 });
 //Route::prefix('/monthly_charge_member')->group(function (){
 //    Route::get('/',[MonthlyChargeAccountController::class,'showAll']);

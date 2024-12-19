@@ -77,7 +77,7 @@ class InstallmentController extends Controller
 //        ]);
 //    }
     public function showAll(){
-        $installments = Installment::get();
+        $installments = Installment::where('delay_days','>',0)->get();
         return response()->json([
             'installments' => $installments,
             'success' => true
@@ -85,6 +85,7 @@ class InstallmentController extends Controller
     }
     public function search(Request $request){
         $id = $request->query('account_id');
+        $loan_account_id = $request->query('loan_account_id');
         $account_name = $request->query('account_name');
         $type = $request->query('type');
         $due_date = $request->query('due_date');
@@ -96,11 +97,14 @@ class InstallmentController extends Controller
         if ($id !== null){
             $query->where('account_id', $id);
         }
+        if ($loan_account_id !== null){
+            $query->where('loan_account_id', $loan_account_id);
+        }
         if ($account_name !== null){
             $query->orWhere('account_name', 'LIKE', "%{$account_name}%");
         }
         if ($type !== null){
-            $query->orWhere('type', $type);
+            $query->orWhere('type', (int)$type);
         }
         if ($due_date !== null){
             $query->orWhere('due_date', $due_date);
@@ -109,7 +113,7 @@ class InstallmentController extends Controller
             $query->orWhere('title','LIKE', "%{$title}%");
         }
         if ($is_paid !== null){
-           $is_paid ? $query->orWhere('paid_date','!=',null): $query->orWhere('paid_date',null);
+            $is_paid === 'true' ? $query->orWhere('paid_date','!=',null): $query->orWhere('paid_date',null);
         }
 
         $installments = $query->get();
