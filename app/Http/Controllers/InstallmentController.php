@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\InstallmentPaymentRequest;
 use App\Http\Requests\InstallmentRequest;
+use App\Models\Account;
+use App\Models\FundAccount;
 use App\Models\Installment;
 use App\Models\Transaction;
 use Hekmatinasser\Verta\Verta;
@@ -164,6 +166,32 @@ class InstallmentController extends Controller
     }
 
     public function pay(InstallmentPaymentRequest $request){
+        DB::beginTransaction();
+        try {
+            $account = Account::where('id',$request->account_id)->first();
+            $installment = Installment::where('id',$request->id)->first();
+            $fund_account = FundAccount::where('id',$request->fund_account_id)->first();
+
+            if ((int)$request->type == 1){
+
+            }else if ((int)$request->type == 2){
+
+            }else return TransactionController::errorResponse('نوع قسط صحیح نیست!',400);
+
+
+
+            DB::commit();
+            $account->status = $this->checkForAccountStatus($account->id);
+            $account->save();
+
+            return response()->json([
+                'msg' => 'پرداخت انجام شد!',
+                'success' => true
+            ]);
+        }catch (\Exception $exception){
+            DB::rollBack();
+            return TransactionController::errorResponse('خطایی در پرداخت قسط رخ داد!',$exception->getMessage());
+        }
 
     }
     private function payCharge(){
@@ -172,4 +200,9 @@ class InstallmentController extends Controller
     private function payLoanInstallment(){
 
     }
+    private function checkForAccountStatus($account_id){
+       $ownings = Installment::where('account_id',$account_id)->where('paid_date',null)->count();
+       if($ownings > 0) return Account::STATUS_DEBTOR;
+       else return Account::STATUS_CREDITOR;
+}
 }
