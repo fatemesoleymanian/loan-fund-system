@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\InstallmentRequest;
 use App\Models\Installment;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -91,7 +92,7 @@ class InstallmentController extends Controller
         $due_date = $request->query('due_date');
         $title = $request->query('title');
         $is_paid = $request->query('is_paid');
-
+        $gregorian_due_date = null;
         $query = Installment::query();
 
         if ($id !== null){
@@ -120,6 +121,7 @@ class InstallmentController extends Controller
         $installments = $query->get();
         return response()->json([
             'installments' => $installments,
+            'd' => $gregorian_due_date,
             'success' => true
         ]);
     }
