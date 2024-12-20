@@ -15,7 +15,7 @@ class Installment extends Model
     }
     public function getPaidDateAttribute($val)
     {
-       return $val == null ? null : verta($val)->format('Y/m/d');
+       return $val == null ? null :verta($val)->format('Y/m/d');
     }
     public function setPaidDateAttribute($val)
     {

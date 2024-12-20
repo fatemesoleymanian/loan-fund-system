@@ -141,7 +141,7 @@ class LoanAccountController extends Controller
             $query->orWhere('account_name', 'LIKE', "%{$account_name}%");
         }
         if ($loan_account_id !== null){
-            $query->orWhere('id', $loan_account_id);
+            $query->where('id', $loan_account_id);
         }
         if ($amount !== null){
             $query->orWhere('amount', $amount);
@@ -151,9 +151,9 @@ class LoanAccountController extends Controller
         }
         if ($is_not_paid !== null){
             if ($is_not_paid === 'true'){
-                $query->orWhere('paid_amount','<','amount');
+                $query->where('paid_amount','<','amount');
             }else{
-                $query->orWhere('paid_amount','>=','amount');
+                $query->where('paid_amount','>=','amount');
             }
         }
 

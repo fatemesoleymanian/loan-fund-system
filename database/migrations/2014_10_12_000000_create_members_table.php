@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('mobile_number')->unique();
             $table->string('telephone_number');
             $table->string('father_name');
-            $table->string('fax');
+            $table->string('fax')->nullable(true);
             $table->text('address');
             $table->timestamps('join_date');
         });

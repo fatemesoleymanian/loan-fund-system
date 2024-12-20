@@ -162,7 +162,7 @@ class AccountController extends Controller
     }
     public function showOne($id){
 //        $account = Account::with(['loans','member','monthlyCharges'])->where('id', $id)->first();
-        $account = Account::with(['member','monthlyCharges'])->where('id', $id)->first();
+        $account = Account::where('id', $id)->first();
         if ($account) return response()->json([
             'account' => $account,
             'success' => true

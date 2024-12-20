@@ -103,10 +103,7 @@ Route::prefix('/installment')->group(function (){
     Route::get('/search',[InstallmentController::class,'search']);
     Route::get('/fee_report',[InstallmentController::class,'showFees']);
     Route::get('/count/{account_id}',[InstallmentController::class,'numberOfUnpaidInstallmentsOfAccount']);
-    Route::post('/',[InstallmentController::class,'create']);
-    Route::post('/group',[InstallmentController::class,'createGroup']);
-    Route::put('/',[InstallmentController::class,'update']);
-    Route::put('/group',[InstallmentController::class,'updateGroup']);
+    Route::post('/pay',[InstallmentController::class,'pay']);
 });
 Route::prefix('/loan_account')->group(function (){
     Route::get('/',[LoanAccountController::class,'showAll']);

@@ -7,6 +7,7 @@ use App\Http\Requests\InstallmentRequest;
 use App\Models\Account;
 use App\Models\FundAccount;
 use App\Models\Installment;
+use App\Models\LoanAccount;
 use App\Models\Transaction;
 use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
@@ -110,19 +111,19 @@ class InstallmentController extends Controller
             $query->orWhere('account_name', 'LIKE', "%{$account_name}%");
         }
         if ($type !== null){
-            $query->orWhere('type', (int)$type);
+            $query->where('type', (int)$type);
         }
         if ($due_date !== null){
             // Convert Solar date to Gregorian format
             $gregorian_due_date = Verta::parse($due_date)->DateTime()->format('Y-m-d');
             // Use whereDate for date-only comparison
-            $query->orWhereDate('due_date', '=', $gregorian_due_date);
+            $query->whereDate('due_date', '=', $gregorian_due_date);
         }
         if ($title !== null){
             $query->orWhere('title','LIKE', "%{$title}%");
         }
         if ($is_paid !== null){
-            $is_paid === 'true' ? $query->orWhere('paid_date','!=',null): $query->orWhere('paid_date',null);
+            $is_paid === 'true' ? $query->where('paid_date','!=',null): $query->where('paid_date',null);
         }
 
         $installments = $query->get();
@@ -132,7 +133,7 @@ class InstallmentController extends Controller
         ]);
     }
     public function numberOfUnpaidInstallmentsOfAccount($account_id){
-        $count = Installment::where('account_id',$account_id)->where('paid_date',null)->count();
+        $count = Installment::where('account_id',$account_id)->where('type',2)->where('paid_date',null)->count();
         return response()->json([
             'counts' => $count,
             'success' => true
@@ -172,17 +173,16 @@ class InstallmentController extends Controller
             $installment = Installment::where('id',$request->id)->first();
             $fund_account = FundAccount::where('id',$request->fund_account_id)->first();
 
-            if ((int)$request->type == 1){
+            if ((int)$request->type == 1) $this->payCharge($request,$account,$installment,$fund_account);
+            else if ((int)$request->type == 2) $this->payLoanInstallment($request,$installment,$fund_account);
+            else return TransactionController::errorResponse('نوع قسط صحیح نیست!',400);
 
-            }else if ((int)$request->type == 2){
-
-            }else return TransactionController::errorResponse('نوع قسط صحیح نیست!',400);
-
-
+            $transaction = $this->logging($request);
 
             DB::commit();
             $account->status = $this->checkForAccountStatus($account->id);
             $account->save();
+            DB::commit();
 
             return response()->json([
                 'msg' => 'پرداخت انجام شد!',
@@ -194,15 +194,50 @@ class InstallmentController extends Controller
         }
 
     }
-    private function payCharge(){
+    private function payCharge($request,$account,$installment,$fund_account){
+        if ($request->amount === $installment->amount) {
+            $fund_account->balance += $request->amount;
+            $fund_account->total_balance += $request->amount;
+            $fund_account->save();
 
+            $account->balance += $request->amount;
+            $account->save();
+
+            $installment->paid_date = Verta::now();
+            $installment->save();
+        }else return TransactionController::errorResponse('مبلغ قسط صحیح نیست!',400);
     }
-    private function payLoanInstallment(){
+    private function payLoanInstallment($request,$installment,$fund_account){
+        if ($request->amount === $installment->amount) {
+            $fund_account->balance += $request->amount;
+            $fund_account->total_balance += $request->amount;
+            $fund_account->save();
 
+            $loan = LoanAccount::where('id',$installment->loan_account_id)->first();
+            $loan->paid_amount += $request->amount;
+            $loan->no_of_paid_inst += 1;
+            $loan->save();
+
+            $installment->paid_date = Verta::now();
+            $installment->save();
+        }else return TransactionController::errorResponse('مبلغ قسط صحیح نیست!',400);
     }
     private function checkForAccountStatus($account_id){
        $ownings = Installment::where('account_id',$account_id)->where('paid_date',null)->count();
        if($ownings > 0) return Account::STATUS_DEBTOR;
        else return Account::STATUS_CREDITOR;
 }
+    private function logging($request){
+        $transaction = Transaction::create([
+            'account_id' => $request->account_id,
+            'loan_account_id' => $request->loan_account_id,
+            'amount' => $request->amount,
+            'type' => (int)$request->type == 1 ? Transaction::TYPE_MONTHLY_PAYMENT : Transaction::TYPE_INSTALLMENT,
+            'description' => (int)$request->type == 1 ? Transaction::TYPE_MONTHLY_PAYMENT : Transaction::TYPE_INSTALLMENT,
+            'fund_account_id' => $request->fund_account_id,
+            'account_name' => $request->account_name,
+            'fund_account_name' => 'صندوق',
+        ]);
+        return $transaction;
+    }
 }
