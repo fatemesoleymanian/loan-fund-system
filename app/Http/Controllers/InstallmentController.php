@@ -242,7 +242,18 @@ class InstallmentController extends Controller
     }
 
     public static function updateDelayDays(){
-        $today = Verta::now();
-        $installments = Installment::where('paid_date','=',null)->get();
+        $today = Verta::now()->format('Y/m/d');
+        $installments = Installment::where('paid_date','=',null)->select('id')->get();
+        if (sizeof($installments) > 0){
+            foreach ($installments as $ints){
+                $installment = Installment::where('id',$ints)->first();
+                $installment->due_date = $today - $installment->due_date;
+                $installment->save();
+            }
+        }
+        return response()->json([
+            'today' => $today,
+//            'insts' => $installments
+        ]);
     }
 }
