@@ -247,7 +247,7 @@ class InstallmentController extends Controller
         if (sizeof($installments) > 0){
             foreach ($installments as $ints){
                 $installment = Installment::where('id',$ints)->first();
-                $installment->due_date = $today - $installment->due_date;
+                $installment->delay_days = $today - $installment->due_date;
                 $installment->save();
             }
         }
