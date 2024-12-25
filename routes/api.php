@@ -27,12 +27,23 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
-//Route::middleware('token.auth')->group(function (){
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+Route::middleware('token.auth')->group(function (){
 Route::get('/test',function (){
     echo 'hii';
+});
+Route::post('/login',function (Request $request){
+    if ($request->username == env('USER_NAME') && $request->password == env('PASSWORD')) {
+        $sync = InstallmentController::updateDelayDays();
+        return response()->json([
+            'token' => env('ACCESS_TOKEN'),
+            'sync' => $sync
+        ], 201);
+    }else return response()->json([
+        'token' => "نام کاربری یا رمزعبور صحیح نیست!",
+    ], 400);
 });
 Route::prefix('/fund_account')->group(function (){
     Route::get('/',[FundAccountController::class,'showAll']);
@@ -133,4 +144,4 @@ Route::prefix('/transaction')->group(function (){
         Route::delete('/',[TransactionController::class,'destroy']);
     });
 
-//});
+});

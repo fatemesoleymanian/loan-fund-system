@@ -240,4 +240,9 @@ class InstallmentController extends Controller
         ]);
         return $transaction;
     }
+
+    public static function updateDelayDays(){
+        $today = Verta::now();
+        $installments = Installment::where('paid_date','=',null)->get();
+    }
 }
