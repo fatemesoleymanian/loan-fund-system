@@ -254,16 +254,15 @@ class InstallmentController extends Controller
         $dueDate = Verta::parse($installment->due_date);
 
         // Calculate the difference in days
-        $delayDays = $today->diffInDays($dueDate, false); // false to allow negative differences
-
+        if($today->greaterThan($dueDate)) $delayDays = $today->diffDays($dueDate); // false to allow negative differences
+        else $delayDays = 0;
         // Update delay_days field
         $installment->delay_days = $delayDays;
         $installment->save();
     }
 
     return response()->json([
-        'today' => $todayFormatted,
-        'updated_installments' => $installments->count(), // Number of installments processed
+        'success' => true
     ]);
 }
 
