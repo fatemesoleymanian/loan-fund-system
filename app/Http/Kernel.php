@@ -64,5 +64,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'token.auth' => \App\Http\Middleware\AliToken::class,
+        'ip.whitelist' => \App\Http\Middleware\IPWhiteList::class
     ];
 }

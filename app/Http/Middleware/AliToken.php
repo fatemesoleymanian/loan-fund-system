@@ -14,8 +14,8 @@ class AliToken
 
         if($token !== 'Bearer '.env('ACCESS_TOKEN')){
             return response()->json([
-                'error' => 'جازه دسترسی به برنامه به شما داده نشده!',
-                'dd'=> $token
+                'error' => 'جازه دسترسی به برنامه به شما داده نشده!'
+//                'dd'=> $token
             ],401);
         }
         return $next($request);

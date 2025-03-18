@@ -39,7 +39,7 @@ Route::post('/login',function (Request $request){
         'token' => "نام کاربری یا رمزعبور صحیح نیست!",
     ], 400);
 });
-Route::middleware('token.auth')->group(function (){
+Route::middleware(['ip.whitelist','token.auth'])->group(function (){
 Route::get('/test',function (){
     echo 'hii';
 });
