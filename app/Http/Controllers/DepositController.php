@@ -6,6 +6,7 @@ use App\Http\Requests\DepositRequest;
 use App\Models\Account;
 use App\Models\Deposit;
 use App\Models\FundAccount;
+use App\Models\Member;
 use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,7 @@ class DepositController extends Controller
         try {
             $request->validated();
             $this->updateFundAccBalance($request);
-           $this->updateAccountBalance($request);
+           $acc = $this->updateAccountBalance($request);
             $fund_account = FundAccount::current();
 
             $deposit = Deposit::create([
@@ -34,7 +35,7 @@ class DepositController extends Controller
            ]);
             DB::commit();
 
-            $sms = $this->sendSms();
+            $sms = $this->sendSms($request->amount, $request->account_id, $acc->balance, $acc->member->mobile_number);
             return response()->json([
                 'deposit'=>$deposit,
                 'msg' => ' با موفقیت واریز شد.',
@@ -54,9 +55,10 @@ class DepositController extends Controller
         $fund_account->save();
     }
     private function updateAccountBalance($request){
-        $account = Account::where('id', $request->account_id)->first();
+        $account = Account::with('member')->where('id', $request->account_id)->first();
         $account->balance += $request->amount;
         $account->save();
+        return $account;
     }
     public function createLog($request){
         DB::beginTransaction();
@@ -68,7 +70,8 @@ class DepositController extends Controller
                 'description'=>$request['description']
             ]);
             DB::commit();
-            $sms = $this->sendSms();
+            $acc = Account::with('member')->where('id',$request['account_id'])->first();
+            $sms = $this->sendSms($request['amount'], $request['account_id'], $acc->balance, $acc->member->mobile_number);
             return [
                 'deposit'=>$deposit,
                 'msg' => ' با موفقیت واریز شد.',
@@ -120,14 +123,14 @@ class DepositController extends Controller
             'success' => true
         ]);
     }
-    private function sendSms(){
+    private function sendSms($amount , $account_id, $balance, $mobile_number){
         return $this->smsController->
         sendTemplateSms(
             [  'type' => 1,
-                'param1' => '1,000',
-                'param2' => '2,000',
-                'param3' => '3,000',
-                'receptor' => '09908285709',
+                'param1' => (string)number_format((float)$amount, 2, '.', ','),
+                'param2' => (string)$account_id,
+                'param3' => (string)number_format((float)$balance, 2, '.', ','),
+                'receptor' => (string)$mobile_number,
                 'template' => 'deposit'
             ]);
 
