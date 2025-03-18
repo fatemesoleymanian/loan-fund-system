@@ -55,32 +55,32 @@ class GhasedakSMSService
         }
     }
 
-    public function sendTemplateSms(int $type, string $param1, string $param2, string $param3 , string $receptor, string $template): array
-    {
-        try {
-            $response = Http::withHeaders([
-                'apikey' => $this->apiKey,
-                'cache-control' => 'no-cache',
-                'content-type' => 'application/x-www-form-urlencoded',
-            ])->post('http://api.ghasedaksms.com/v2/send/verify', [
-                'type' => $type,
-                'param1' => $param1,
-                'param2' => $param2,
-                'param3' => $param3,
-                'receptor' => $receptor,
-                'template' => $template,
-            ]);
-
-            if ($response->successful()) {
-                return $response->json();
-            } else {
-                throw new Exception('Ghasedak API error: ' . $response->body());
-            }
-        } catch (Exception $e) {
-            // Log the error or handle it as needed
-            logger()->error('Ghasedak template SMS failed: ' . $e->getMessage());
-            throw $e;
-        }
-    }
+//    public function sendTemplateSms(int $type, string $param1, string $param2, string $param3 , string $receptor, string $template)
+//    {
+//        $curl = curl_init();
+//        curl_setopt_array($curl,
+//            array(
+//                CURLOPT_URL => "http://api.ghasedaksms.com/v2/send/verify",
+//                CURLOPT_RETURNTRANSFER => true,
+//                CURLOPT_ENCODING => "",
+//                CURLOPT_MAXREDIRS => 10,
+//                CURLOPT_TIMEOUT => 30,
+//                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+//                CURLOPT_CUSTOMREQUEST => "POST",
+//                CURLOPT_POSTFIELDS => "type=1&receptor=09908285709&template=deposit&param1=90&param2=89&param3=32",
+//                CURLOPT_HTTPHEADER => array(
+//                    "apikey: ". $this->apiKey,
+//                    "cache-control: no-cache",
+//                    "content-type: application/x-www-form-urlencoded",
+//                )));
+//            $response = curl_exec($curl);
+//            $err = curl_error($curl);
+//            curl_close($curl);
+//            if ($err) {
+//                return "cURL Error #:" . $err;
+//            } else {
+//                return $response;
+//            }
+//    }
 
 }

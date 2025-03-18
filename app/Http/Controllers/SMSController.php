@@ -51,13 +51,6 @@ class SMSController extends Controller
     }
     public function sendTemplateSms($data)
     {
-//        $data = [
-//            'type' => 1,
-//            'param1' => '1234',
-//            'receptor' => '09191111111',
-//            'template' => 'testvoice',
-//        ];
-
         $rules = [
             'type' => 'required|integer',
             'param1' => 'required|string',
@@ -72,7 +65,7 @@ class SMSController extends Controller
         if ($validator->fails()) {
             // Handle validation errors
             $errors = $validator->errors();
-            return response()->json(['success' => false, 'errors' => $errors], 422);
+            return response()->json(['success' => false, 'errors' => $errors], 400);
         }
 
         $type = $data['type'];
@@ -84,7 +77,7 @@ class SMSController extends Controller
 
         try {
             $result = $this->smsService->sendTemplateSms($type, $param1,$param2,$param3, $receptor, $template);
-            return response()->json(['success' => true, 'data' => $result]);
+            return response()->json(['success' => true, 'data' => $result ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }

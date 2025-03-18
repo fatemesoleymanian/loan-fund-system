@@ -151,7 +151,7 @@ class WithdrawController extends Controller
                 'param2' => '2,000',
                 'param3' => '3,000',
                 'receptor' => '09908285709',
-                'template' => $template
+                'template' => 'withdraw'
             ]);
 
     }
