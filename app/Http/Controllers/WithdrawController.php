@@ -13,6 +13,12 @@ use Illuminate\Support\Facades\DB;
 
 class WithdrawController extends Controller
 {
+    protected $smsController;
+
+    public function __construct(){
+        $this->smsController = new SMSController();
+    }
+
     public function create(DepositRequest $request){
         DB::beginTransaction();
         try {
@@ -27,10 +33,13 @@ class WithdrawController extends Controller
                 'description'=>$request->description
             ]);
             DB::commit();
+            $sms = $this->sendSms();
+
             return response()->json([
                 'withdraw'=>$withdraw,
                 'msg' => ' با موفقیت برداشت شد.',
-                'success' => true
+                'success' => true,
+                'sms' => $sms
             ], 201);
 
         }catch (\Exception $e) {
@@ -54,10 +63,12 @@ class WithdrawController extends Controller
                 'is_open' =>false
             ]);
             DB::commit();
+            $sms = $this->sendSms('closure');
             return response()->json([
                 'account'=>$account,
                 'msg' => ' با موفقیت برداشت شد.',
-                'success' => true
+                'success' => true,
+                'sms' => $sms
             ], 201);
 
         }catch (\Exception $e) {
@@ -84,9 +95,11 @@ class WithdrawController extends Controller
             'fund_account_id'=>$request['fund_account_id'],
             'description'=>$request['description']
         ]);
+        $sms = $this->sendSms();
         return response()->json([
             'msg' => ' با موفقیت برداشت شد.',
-            'success' => true
+            'success' => true,
+            'sms' => $sms
         ], 201);
     }
     public function showAll(){
@@ -129,5 +142,17 @@ class WithdrawController extends Controller
             'withdraws' => $withdraws,
             'success' => true
         ]);
+    }
+    private function sendSms($template='withdraw'){
+        return $this->smsController->
+        sendTemplateSms(
+            [  'type' => 1,
+                'param1' => '1,000',
+                'param2' => '2,000',
+                'param3' => '3,000',
+                'receptor' => '09908285709',
+                'template' => $template
+            ]);
+
     }
 }

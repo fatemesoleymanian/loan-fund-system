@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\DB;
 
 class DepositController extends Controller
 {
+    protected $smsController;
+
+    public function __construct(){
+        $this->smsController = new SMSController();
+    }
 
     public function create(DepositRequest $request){
         DB::beginTransaction();
@@ -28,10 +33,13 @@ class DepositController extends Controller
                'description'=>$request->description
            ]);
             DB::commit();
+
+            $sms = $this->sendSms();
             return response()->json([
                 'deposit'=>$deposit,
                 'msg' => ' با موفقیت واریز شد.',
-                'success' => true
+                'success' => true,
+                'sms' => $sms
             ], 201);
 
         }catch (\Exception $e) {
@@ -60,10 +68,12 @@ class DepositController extends Controller
                 'description'=>$request['description']
             ]);
             DB::commit();
+            $sms = $this->sendSms();
             return [
                 'deposit'=>$deposit,
                 'msg' => ' با موفقیت واریز شد.',
-                'success' => true
+                'success' => true,
+                'sms' => $sms
             ];
 
         }catch (\Exception $e) {
@@ -109,5 +119,17 @@ class DepositController extends Controller
             'deposits' => $deposits,
             'success' => true
         ]);
+    }
+    private function sendSms(){
+        return $this->smsController->
+        sendTemplateSms(
+            [  'type' => 1,
+                'param1' => '1,000',
+                'param2' => '2,000',
+                'param3' => '3,000',
+                'receptor' => '09908285709',
+                'template' => 'deposit'
+            ]);
+
     }
 }
