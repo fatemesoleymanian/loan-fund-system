@@ -24,7 +24,7 @@ class WithdrawController extends Controller
         try {
             $request->validated();
             $this->updateFundAccBalance($request);
-            $this->updateAccountBalance($request);
+            $acc = $this->updateAccountBalance($request);
             $fund_account = FundAccount::current();
             $withdraw = Withdraw::create([
                 'amount'=>$request->amount,
@@ -33,7 +33,7 @@ class WithdrawController extends Controller
                 'description'=>$request->description
             ]);
             DB::commit();
-            $sms = $this->sendSms();
+            $sms = $this->sendSms($request->amount, $request->account_id, $acc->balance, $acc->member->mobile_number,'withdraw');
 
             return response()->json([
                 'withdraw'=>$withdraw,
@@ -53,7 +53,7 @@ class WithdrawController extends Controller
         try {
             $request->validated();
             $this->updateFundAccBalance($request);
-            $this->updateAccountBalance($request);
+            $acc = $this->updateAccountBalance($request);
             $withdraw = Withdraw::create([
                 'amount'=>$request->amount,
                 'account_id'=>$request->account_id,
@@ -63,7 +63,7 @@ class WithdrawController extends Controller
                 'is_open' =>false
             ]);
             DB::commit();
-            $sms = $this->sendSms('closure');
+            $sms = $this->sendSms($request->account_id,null, null, $acc->member->mobile_number,'closure');
             return response()->json([
                 'account'=>$account,
                 'msg' => ' با موفقیت برداشت شد.',
@@ -83,10 +83,11 @@ class WithdrawController extends Controller
         $fund_account->save();
     }
     private function updateAccountBalance($request){
-        $account = Account::where('id', $request->account_id)->first();
+        $account = Account::with('member')->where('id', $request->account_id)->first();
         $account->balance -= $request->amount;
 //        if ($request->close) $account->is_open = false;
         $account->save();
+        return $account;
     }
     public function createLog($request){
         $withdraw = Withdraw::create([
@@ -95,11 +96,14 @@ class WithdrawController extends Controller
             'fund_account_id'=>$request['fund_account_id'],
             'description'=>$request['description']
         ]);
-        $sms = $this->sendSms();
+        if ($request['account_id'] != null) {
+            $acc = Account::with('member')->where('id', $request['account_id'])->first();
+            $sms = $this->sendSms($request['amount'], $request['account_id'],$acc->balance, $acc->member->mobile_number,'withdraw');
+        }
         return response()->json([
             'msg' => ' با موفقیت برداشت شد.',
             'success' => true,
-            'sms' => $sms
+            'sms' => $sms ?? null
         ], 201);
     }
     public function showAll(){
@@ -143,15 +147,19 @@ class WithdrawController extends Controller
             'success' => true
         ]);
     }
-    private function sendSms($template='withdraw'){
+    private function sendSms($amount , $account_id, $balance, $mobile_number,$template='withdraw'){
+        if($template === 'withdraw') {
+            $amount = number_format((int)$amount);
+            $balance = number_format($balance);
+        }
         return $this->smsController->
         sendTemplateSms(
             [  'type' => 1,
-                'param1' => '1,000',
-                'param2' => '2,000',
-                'param3' => '3,000',
-                'receptor' => '09908285709',
-                'template' => 'withdraw'
+                'param1' => (string)$amount,
+                'param2' => (string)$account_id,
+                'param3' => (string)$balance,
+                'receptor' => (string)$mobile_number,
+                'template' => $template
             ]);
 
     }
