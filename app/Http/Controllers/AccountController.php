@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\DB;
 
 class AccountController extends Controller
 {
+    protected $smsController;
+
+    public function __construct(){
+        $this->smsController = new SMSController();
+    }
     public function createMemberAndAccount(AccountAndMemberRequest $request){
         DB::beginTransaction();
         try {
@@ -107,9 +112,10 @@ class AccountController extends Controller
             ],400);
         }else{
             $this->settlement($request);
-           $account = Account::where('id',$request->id)->first();
+           $account = Account::with('member')->where('id',$request->id)->first();
            $account->is_open = false;
            $account->save();
+           $sms = $this->sendSms($request->id,$account->member->mobile_number,' بسته ');
           return TransactionController::successResponse('حساب با موفقیت بسته شد!',200);
         }
     }
@@ -151,13 +157,15 @@ class AccountController extends Controller
         }
     }
     public function activate(Request $request){
-        $account = Account::withoutGlobalScope('is_open')->where('id',$request->id)->first();
+        $account = Account::withoutGlobalScope('is_open')->with('member')->where('id',$request->id)->first();
         $account->status = Account::STATUS_CREDITOR;
         $account->is_open = true;
         $account->save();
+        $sms = $this->sendSms($request->id,$account->member->mobile_number,' فعال ');
         return response()->json([
             'msg'=>'حساب باموفقیت فعال شد!',
-            'success'=>true
+            'success'=>true,
+            'sms' => $sms
         ],200);
     }
     public function showOne($id){
@@ -247,6 +255,17 @@ class AccountController extends Controller
                 'success' => true
             ]);
 
+    }
+    private function sendSms( $account_id,$mobile_number,$template){
+        return $this->smsController->
+        sendTemplateSms(
+            [  'type' => 1,
+                'param1' => (string)$account_id,
+                'param2' => $template,
+                'param3' => null,
+                'receptor' => (string)$mobile_number,
+                'template' => 'accountstatus'
+            ]);
     }
 
 }

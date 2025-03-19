@@ -15,7 +15,11 @@ use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
+    protected $smsController;
 
+    public function __construct(){
+        $this->smsController = new SMSController();
+    }
     public function create(TransactionRequest $request)
     {
         DB::beginTransaction();
@@ -36,7 +40,13 @@ class TransactionController extends Controller
 //
 //            // Step 5: Commit the transaction
             DB::commit();
-//
+
+            $type = $this->transactionTypeForSmsTemplate($validated['type']);
+            $sms = null;
+
+            if ($type === 'installment') $sms = $this->sendSms($validated['installment_id'],$validated['account_id'],null,$account->member->mobile_number,$type);
+            if($type != null) $sms = $this->sendSms($validated['amount'],$validated['account_id'],$account->balance,$account->member->mobile_number,$type);
+
             return $this->successResponse('تراکنش جدیدی با موفقیت اضافه شد.', 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -46,7 +56,7 @@ class TransactionController extends Controller
 
     private function getAccount($accountId)
     {
-        return Account::findOrFail($accountId);
+        return Account::with('member')->findOrFail($accountId);
     }
 
     private function getFundAccount($fundAccountId)
@@ -349,5 +359,36 @@ class TransactionController extends Controller
             'success' => true
         ]);
     }
+    private function sendSms($amount , $account_id, $balance, $mobile_number,$template){
+        return $this->smsController->
+        sendTemplateSms(
+            [  'type' => 1,
+                'param1' => (string)$amount,
+                'param2' => (string)$account_id,
+                'param3' => (string)$balance,
+                'receptor' => (string)$mobile_number,
+                'template' => $template
+            ]);
 
+    }
+    private function transactionTypeForSmsTemplate($type){
+        switch ($type) {
+            case Transaction::TYPE_INSTALLMENT:
+               return 'installment';
+            case Transaction::TYPE_MONTHLY_PAYMENT:
+                return 'charge';
+            case Transaction::TYPE_PENALTY:
+                return 'penalty';
+            case Transaction::TYPE_FEE:
+                return 'fee';
+            case Transaction::TYPE_WITHDRAW:
+                return 'withdraw';
+            case Transaction::TYPE_LOAN_PAYMENT:
+                return 'loan';
+            case Transaction::TYPE_DEPOSIT:
+                return 'deposit';
+            default:
+                throw new \Exception('نوع تراکنش نامعتبذ است.');
+        }
+    }
 }

@@ -83,7 +83,11 @@ class InstallmentController extends Controller
 //        ]);
 //    }
 
+    protected $smsController;
 
+    public function __construct(){
+        $this->smsController = new SMSController();
+    }
     public function showAll(){
         $installments = Installment::where('paid_date',null)->orderBy('due_date','asc')->get();
         return response()->json([
@@ -169,7 +173,7 @@ class InstallmentController extends Controller
     public function pay(InstallmentPaymentRequest $request){
         DB::beginTransaction();
         try {
-            $account = Account::where('id',$request->account_id)->first();
+            $account = Account::with('member')->where('id',$request->account_id)->first();
             $installment = Installment::where('id',$request->id)->first();
             $fund_account = FundAccount::where('id',$request->fund_account_id)->first();
 
@@ -184,9 +188,17 @@ class InstallmentController extends Controller
             $account->save();
             DB::commit();
 
+            $sms = null;
+
+            if ((int)$request->type == 1) $sms = $this->sendSms($request->amount,$request->account_id,$account->balance,
+                $account->member->mobile_number,'charge');
+            else if ((int)$request->type == 2) $sms = $this->sendSms($installment->inst_number,$request->account_id,$request->amount,
+                $account->member->mobile_number,'installment');
+
             return response()->json([
                 'msg' => 'پرداخت انجام شد!',
-                'success' => true
+                'success' => true,
+                'sms' => $sms
             ]);
         }catch (\Exception $exception){
             DB::rollBack();
@@ -266,4 +278,16 @@ class InstallmentController extends Controller
     ]);
 }
 
+    private function sendSms($amount , $account_id, $balance, $mobile_number,$template){
+        return $this->smsController->
+        sendTemplateSms(
+            [  'type' => 1,
+                'param1' => (string)$amount,
+                'param2' => (string)$account_id,
+                'param3' => (string)$balance,
+                'receptor' => (string)$mobile_number,
+                'template' => $template
+            ]);
+
+    }
 }
