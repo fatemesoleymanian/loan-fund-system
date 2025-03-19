@@ -55,17 +55,18 @@ class GhasedakSMSService
         }
     }
 
-    public function sendTemplateSms(int $type, string $param1, string $param2, string $param3 , string $receptor, string $template)
+    public function sendTemplateSms(int $type, string $param1, ?string $param2, ?string $param3 , string $receptor, string $template)
     {
-    //      $postData = [
-    //     'type'    => $type,
-    //     'receptor'=> $receptor,
-    //     'template'=> $template,
-    //     'param1'  => $param1,
-    //     'param2'  => $param2,
-    //     'param3'  => $param3,
-    // ];
-         // http_build_query($postData),
+        $postFields = "type=$type&receptor=$receptor&template=$template&param1=" . urlencode($param1);
+
+        if (!empty($param2)) {
+            $postFields .= "&param2=" . urlencode($param2);
+        }
+
+        if (!empty($param3)) {
+            $postFields .= "&param3=" . urlencode($param3);
+        }
+
         $curl = curl_init();
         curl_setopt_array($curl,
             array(
@@ -76,13 +77,7 @@ class GhasedakSMSService
                 CURLOPT_TIMEOUT => 30,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => "type=" . urlencode($type) .
-                "&receptor=" . urlencode($receptor) .
-                "&template=" . urlencode($template) .
-                "&param1=" . urlencode($param1) .
-                "&param2=" . urlencode($param2) .
-                "&param3=" . urlencode($param3),
-                // CURLOPT_POSTFIELDS => "type=$type&receptor=$receptor&template=$template&param1=$param1&param2=$param2&param3=$param3",
+                CURLOPT_POSTFIELDS => $postFields,
                 CURLOPT_HTTPHEADER => array(
                     "apikey: $this->apiKey",
 //                    "cache-control: no-cache",

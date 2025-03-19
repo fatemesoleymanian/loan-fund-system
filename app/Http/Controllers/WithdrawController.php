@@ -148,10 +148,6 @@ class WithdrawController extends Controller
         ]);
     }
     private function sendSms($amount , $account_id, $balance, $mobile_number,$template='withdraw'){
-        if($template === 'withdraw') {
-            $amount = number_format((int)$amount);
-            $balance = number_format($balance);
-        }
         return $this->smsController->
         sendTemplateSms(
             [  'type' => 1,

@@ -127,9 +127,9 @@ class DepositController extends Controller
         return $this->smsController->
         sendTemplateSms(
             [  'type' => 1,
-                'param1' => (string)number_format((float)$amount, 2, '.', ','),
+                'param1' => (string)$amount,
                 'param2' => (string)$account_id,
-                'param3' => (string)number_format((float)$balance, 2, '.', ','),
+                'param3' => (string)$balance,
                 'receptor' => (string)$mobile_number,
                 'template' => 'deposit'
             ]);

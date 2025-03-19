@@ -54,8 +54,8 @@ class SMSController extends Controller
         $rules = [
             'type' => 'required|integer',
             'param1' => 'required|string',
-            'param2' => 'string',
-            'param3' => 'string',
+            'param2' => 'nullable|string',
+            'param3' => 'nullable|string',
             'receptor' => 'required|string',
             'template' => 'required|string',
         ];
@@ -69,9 +69,9 @@ class SMSController extends Controller
         }
 
         $type = $data['type'];
-        $param1 = $data['param1'];
-        $param2 = $data['param2'];
-        $param3 = $data['param3'];
+        $param1 = urlencode($data['param1']);
+        $param2 = urlencode($data['param2']);
+        $param3 = urlencode($data['param3']);
         $receptor = $data['receptor'];
         $template = $data['template'];
 
