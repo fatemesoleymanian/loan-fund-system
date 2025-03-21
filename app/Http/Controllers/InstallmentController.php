@@ -290,4 +290,65 @@ class InstallmentController extends Controller
             ]);
 
     }
+    public function sendLatencySms(){
+        $receptors = [];
+        $installments = Installment::where('paid_date',null)
+            ->where('delay_days','>','0')->get()->groupBy('account_id');
+
+        $accountIds = $installments->keys();
+        $receptorsArray = Account::whereHas('member')
+        ->with('member')
+        ->whereIn('id', $accountIds)->get()->pluck('member.mobile_number')
+            ->filter()->unique()->values()->toArray();
+
+        $messagesArray = [];
+
+        foreach ($installments as $accountId => $accountInstallments) {
+            $loans = 0;
+            $charges = 0;
+            $total = sizeof($accountInstallments);
+            foreach ($accountInstallments as $installment) {
+                (int)$installment->type == 1 ? $charges++ : $loans++;
+            }
+            $message = "\n با سلام
+        شما $total قسط پرداخت نشده و با تاخیر دارید.
+        لطفا برای پرداخت اقدام کنید.
+        \n" . ($loans > 0 ? "$loans قسط بابت وام\n" : "" ).
+                ($charges > 0 ? "$charges قسط بابت ماهیانه" : "" ).
+                "\n
+        صندوق خانوادگی سلیمانیان (شهید طایف)
+        لغو 11
+        ";
+//            $message = "لام";
+            array_push($messagesArray,urlencode($message));
+        }
+
+
+        $receptors = implode(',', $receptorsArray);
+        $message = implode(',', $messagesArray);
+        return $this->smsController->sendBulkSms([
+            'message' =>$message,
+            'receptors' => $receptors
+        ]);
+
+//        return response()->json([
+//            'installments' => $receptors,
+//            'success' => $message
+//        ]);
+    }
+    public function sendReminderSms(){
+        $todayJalali = Verta::now()->startDay();
+        $cutoffJalali = $todayJalali->copy()->addDays(30)->endDay();
+        $todayGregorian = $todayJalali->datetime()->format('Y-m-d');
+        $cutoffGregorian = $cutoffJalali->datetime()->format('Y-m-d');
+
+        $installments = Installment::whereNull('paid_date')
+            ->whereBetween('due_date', [$todayGregorian, $cutoffGregorian])
+            ->get()->groupBy('account_id');
+                return response()->json([
+            'installments' => $installments,
+            'success' => true
+        ]);
+
+    }
 }

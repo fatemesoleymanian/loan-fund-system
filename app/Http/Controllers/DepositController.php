@@ -124,6 +124,8 @@ class DepositController extends Controller
         ]);
     }
     private function sendSms($amount , $account_id, $balance, $mobile_number){
+        $amount = number_format((int)$amount);
+        $balance = number_format((int)$balance);
         return $this->smsController->
         sendTemplateSms(
             [  'type' => 1,

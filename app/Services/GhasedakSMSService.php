@@ -33,25 +33,25 @@ class GhasedakSMSService
             throw  $exception;
         }
     }
-    public function sendBulkSMS(string $message, string $sender, array $receptors, int $checkMessageIds):array
+    public function sendBulkSMS(string $message,  string $receptors)
     {
-        try {
-            $response = Http::withHeaders([
-                'apikey' => $this->apiKey,
-            ])->post('http://api.ghasedaksms.com/v2/sms/send/bulk',[
-                'message' => $message,
-                'sender' => $sender,
-                'Receptor' => implode(',', $receptors),
-                'checkmessageids' => $checkMessageIds
-            ]);
-            if ($response->successful()){
-                return $response->json();
-            } else {
-                throw new Exception('Ghasedak API error: ' . $response->body());
-            }
-        }catch (Exception $exception){
-            logger()->error('Ghasedak bulk sms failed: '. $exception->getMessage());
-            throw  $exception;
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "http://api.ghasedaksms.com/v2/sms/send/bulk2",
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => "message=$message&sender=09830005088&receptor=$receptors",
+            CURLOPT_HTTPHEADER => array(
+                "apikey: ".$this->apiKey,
+            ),
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($err) {
+            echo "cURL Error #:" . $err;
+        } else {
+            echo $response;
         }
     }
 

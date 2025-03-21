@@ -28,23 +28,26 @@ class SMSController extends Controller
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
-    public function sendBulkSms(Request $request)
+    public function sendBulkSms($data)
     {
-        $request->validate([
+        $rules = [
+            'receptors' => 'required|string',
             'message' => 'required|string',
-            'sender' => 'required|string',
-            'receptors' => 'required|array',
-            'checkmessageids' => 'required|integer',
-        ]);
+        ];
+        $validator = Validator::make($data, $rules);
 
-        $message = $request->input('message');
-        $sender = $request->input('sender');
-        $receptors = $request->input('receptors');
-        $checkMessageIds = $request->input('checkmessageids');
+        if ($validator->fails()) {
+            // Handle validation errors
+            $errors = $validator->errors();
+            return response()->json(['success' => false, 'errors' => $errors], 400);
+        }
+
+        $receptors = $data['receptors'];
+        $message = $data['message'];
 
         try {
-            $result = $this->smsService->sendBulkSms($message, $sender, $receptors, $checkMessageIds);
-            return response()->json(['success' => true, 'data' => $result]);
+            $result = $this->smsService->sendBulkSMS($message, $receptors);
+            return response()->json(['success' => true, 'data' => $result ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
