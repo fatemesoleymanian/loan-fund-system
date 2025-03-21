@@ -115,7 +115,7 @@ class AccountController extends Controller
            $account = Account::with('member')->where('id',$request->id)->first();
            $account->is_open = false;
            $account->save();
-           $sms = $this->sendSms($request->id,$account->member->mobile_number,' بسته ');
+           $sms = $this->sendSms($request->id,$account->member->mobile_number,'closure');
           return TransactionController::successResponse('حساب با موفقیت بسته شد!',200);
         }
     }
@@ -161,7 +161,7 @@ class AccountController extends Controller
         $account->status = Account::STATUS_CREDITOR;
         $account->is_open = true;
         $account->save();
-        $sms = $this->sendSms($request->id,$account->member->mobile_number,' فعال ');
+        $sms = $this->sendSms($request->id,$account->member->mobile_number,'opening');
         return response()->json([
             'msg'=>'حساب باموفقیت فعال شد!',
             'success'=>true,
@@ -261,10 +261,10 @@ class AccountController extends Controller
         sendTemplateSms(
             [  'type' => 1,
                 'param1' => (string)$account_id,
-                'param2' => $template,
+                'param2' => null,
                 'param3' => null,
                 'receptor' => (string)$mobile_number,
-                'template' => 'accountstatus'
+                'template' => $template
             ]);
     }
 
