@@ -113,7 +113,7 @@ Route::prefix('/installment')->group(function (){
     Route::get('/fee_report',[InstallmentController::class,'showFees']);
     Route::get('/count/{account_id}',[InstallmentController::class,'numberOfUnpaidInstallmentsOfAccount']);
     Route::post('/pay',[InstallmentController::class,'pay']);
-    Route::get('/latency_sms',[InstallmentController::class,'sendLatencySms']);
+    Route::get('/latency_sms{type}',[InstallmentController::class,'sendLatencySms']);
     Route::get('/reminder_sms',[InstallmentController::class,'sendReminderSms']);
 });
 Route::prefix('/loan_account')->group(function (){

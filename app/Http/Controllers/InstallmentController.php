@@ -279,6 +279,8 @@ class InstallmentController extends Controller
 }
 
     private function sendSms($amount , $account_id, $balance, $mobile_number,$template){
+        if($template !== 'installment') $amount = number_format((int)$amount);
+        $balance = number_format((int)$balance);
         return $this->smsController->
         sendTemplateSms(
             [  'type' => 1,
@@ -290,10 +292,10 @@ class InstallmentController extends Controller
             ]);
 
     }
-    public function sendLatencySms(){
+    public function sendLatencySms($type){
         $receptors = [];
         $installments = Installment::where('paid_date',null)
-            ->where('delay_days','>','0')->get()->groupBy('account_id');
+            ->where('delay_days','>','0')->where('type',(int)$type)->get()->groupBy('account_id');
 
         $accountIds = $installments->keys();
         $receptorsArray = Account::whereHas('member')
@@ -304,31 +306,26 @@ class InstallmentController extends Controller
         $messagesArray = [];
 
         foreach ($installments as $accountId => $accountInstallments) {
-            $loans = 0;
-            $charges = 0;
-            $total = sizeof($accountInstallments);
-            foreach ($accountInstallments as $installment) {
-                (int)$installment->type == 1 ? $charges++ : $loans++;
-            }
-            $message = "\n با سلام
-        شما $total قسط پرداخت نشده و با تاخیر دارید.
-        لطفا برای پرداخت اقدام کنید.
-        \n" . ($loans > 0 ? "$loans قسط بابت وام\n" : "" ).
-                ($charges > 0 ? "$charges قسط بابت ماهیانه" : "" ).
-                "\n
-        صندوق خانوادگی سلیمانیان (شهید طایف)
-        لغو 11
-        ";
-//            $message = "لام";
+            $numbers_of_installments = sizeof($accountInstallments);
+            $message = (int)$type == 1 ?
+             ("باسلام\nحساب شما دارای $numbers_of_installments ماهیانه پرداخت نشده است." .
+                "لطفا برای پرداخت اقدام کنید.\n".
+                "\nصندوق خانوادگی سلیمانیان (شهید طایف)\nلغو 11") :
+                ("باسلام\nحساب شما دارای $numbers_of_installments قسط پرداخت نشده بابت وام ".$accountInstallments[0]->loan_id."می باشد.لطفا برای پرداخت اقدام کنید.\n".
+                "\nصندوق خانوادگی سلیمانیان (شهید طایف)\nلغو 11");
             array_push($messagesArray,urlencode($message));
         }
 
 
         $receptors = implode(',', $receptorsArray);
         $message = implode(',', $messagesArray);
-        return $this->smsController->sendBulkSms([
+
+        return sizeof($receptorsArray) > 0 ? $this->smsController->sendBulkSms([
             'message' =>$message,
             'receptors' => $receptors
+        ]) : response()->json([
+            'msg' => 'قسط یا ماهیانه پرداخت نشده ای وجود ندارد!',
+            'success' => true
         ]);
 
 //        return response()->json([

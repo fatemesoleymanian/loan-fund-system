@@ -37,10 +37,10 @@ class GhasedakSMSService
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "http://api.ghasedaksms.com/v2/sms/send/bulk2",
+            CURLOPT_URL => "http://api.ghasedaksms.com/v2/sms/send/bulk",
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => "message=$message&sender=09830005088&receptor=$receptors",
+            CURLOPT_POSTFIELDS => "message=$message&sender=10002000100924&receptor=$receptors",
             CURLOPT_HTTPHEADER => array(
                 "apikey: ".$this->apiKey,
             ),
@@ -57,14 +57,14 @@ class GhasedakSMSService
 
     public function sendTemplateSms(int $type, string $param1, ?string $param2, ?string $param3 , string $receptor, string $template)
     {
-        $postFields = "type=$type&receptor=$receptor&template=$template&param1=" . urlencode($param1);
+        $postFields = "type=$type&receptor=$receptor&template=$template&param1=$param1";
 
         if (!empty($param2)) {
-            $postFields .= "&param2=" . urlencode($param2);
+            $postFields .= "&param2=$param2";
         }
 
         if (!empty($param3)) {
-            $postFields .= "&param3=" . urlencode($param3);
+            $postFields .= "&param3=$param3";
         }
 
         $curl = curl_init();
