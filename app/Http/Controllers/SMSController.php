@@ -28,7 +28,15 @@ class SMSController extends Controller
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
-    public function sendBulkSms($data)
+    public function sendBulkSmsWithCustomizeText(Request $request){
+        $data = [
+            'message' => $request->message,
+            'receptors' => $request->receptors
+        ];
+
+       return $this->sendBulkSms($data,2);
+    }
+    public function sendBulkSms($data,$bulk=1)
     {
         $rules = [
             'receptors' => 'required|string',
@@ -46,7 +54,7 @@ class SMSController extends Controller
         $message = $data['message'];
 
         try {
-            $result = $this->smsService->sendBulkSMS($message, $receptors);
+            $result = $bulk == 1 ? $this->smsService->sendBulkSMS($message, $receptors) : $this->smsService->sendBulkSMS2($message, $receptors);
             return response()->json(['success' => true, 'data' => $result ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);

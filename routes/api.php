@@ -11,6 +11,7 @@ use App\Http\Controllers\LoanController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MonthlyChargeController;
 use App\Http\Controllers\MonthlyChargeAccountController;
+use App\Http\Controllers\SMSController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\WithdrawController;
 use Illuminate\Http\Request;
@@ -143,5 +144,6 @@ Route::prefix('/transaction')->group(function (){
         Route::put('/',[TransactionController::class,'update']);
         Route::delete('/',[TransactionController::class,'destroy']);
     });
+Route::post('sms/custom_message',[SMSController::class,'sendBulkSmsWithCustomizeText']);
 
 });
