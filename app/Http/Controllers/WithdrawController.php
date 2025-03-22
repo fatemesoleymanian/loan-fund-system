@@ -33,7 +33,7 @@ class WithdrawController extends Controller
                 'description'=>$request->description
             ]);
             DB::commit();
-            $sms = $this->sendSms($request->amount, $request->account_id, $acc->balance, $acc->member->mobile_number,'withdraw');
+            $sms = $this->sendSms($request->amount, $acc->member_name, $acc->balance, $acc->member->mobile_number,'withdraw');
 
             return response()->json([
                 'withdraw'=>$withdraw,
@@ -98,7 +98,7 @@ class WithdrawController extends Controller
         ]);
         if ($request['account_id'] != null) {
             $acc = Account::with('member')->where('id', $request['account_id'])->first();
-            $sms = $this->sendSms($request['amount'], $request['account_id'],$acc->balance, $acc->member->mobile_number,'withdraw');
+            $sms = $this->sendSms($request['amount'], $acc->member_name,$acc->balance, $acc->member->mobile_number,'withdraw');
         }
         return response()->json([
             'msg' => ' با موفقیت برداشت شد.',

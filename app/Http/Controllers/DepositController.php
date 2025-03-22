@@ -35,7 +35,7 @@ class DepositController extends Controller
            ]);
             DB::commit();
 
-            $sms = $this->sendSms($request->amount, $request->account_id, $acc->balance, $acc->member->mobile_number);
+            $sms = $this->sendSms($request->amount, $acc->member_name, $acc->balance, $acc->member->mobile_number);
             return response()->json([
                 'deposit'=>$deposit,
                 'msg' => ' با موفقیت واریز شد.',
@@ -71,7 +71,7 @@ class DepositController extends Controller
             ]);
             DB::commit();
             $acc = Account::with('member')->where('id',$request['account_id'])->first();
-            $sms = $this->sendSms($request['amount'], $request['account_id'], $acc->balance, $acc->member->mobile_number);
+            $sms = $this->sendSms($request['amount'], $acc->member_name, $acc->balance, $acc->member->mobile_number);
             return [
                 'deposit'=>$deposit,
                 'msg' => ' با موفقیت واریز شد.',
@@ -123,14 +123,14 @@ class DepositController extends Controller
             'success' => true
         ]);
     }
-    private function sendSms($amount , $account_id, $balance, $mobile_number){
+    private function sendSms($amount , $account_name, $balance, $mobile_number){
         $amount = number_format((int)$amount);
         $balance = number_format((int)$balance);
         return $this->smsController->
         sendTemplateSms(
             [  'type' => 1,
                 'param1' => (string)$amount,
-                'param2' => (string)$account_id,
+                'param2' => (string)$account_name,
                 'param3' => (string)$balance,
                 'receptor' => (string)$mobile_number,
                 'template' => 'deposit'

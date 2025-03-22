@@ -190,9 +190,9 @@ class InstallmentController extends Controller
 
             $sms = null;
 
-            if ((int)$request->type == 1) $sms = $this->sendSms($request->amount,$request->account_id,$account->balance,
+            if ((int)$request->type == 1) $sms = $this->sendSms($request->amount,$account->member_name,$account->balance,
                 $account->member->mobile_number,'charge');
-            else if ((int)$request->type == 2) $sms = $this->sendSms($installment->inst_number,$request->account_id,$request->amount,
+            else if ((int)$request->type == 2) $sms = $this->sendSms($installment->inst_number,$account->member_name,$request->amount,
                 $account->member->mobile_number,'installment');
 
             return response()->json([
@@ -278,14 +278,14 @@ class InstallmentController extends Controller
     ]);
 }
 
-    private function sendSms($amount , $account_id, $balance, $mobile_number,$template){
+    private function sendSms($amount , $account_name, $balance, $mobile_number,$template){
         if($template !== 'installment') $amount = number_format((int)$amount);
         $balance = number_format((int)$balance);
         return $this->smsController->
         sendTemplateSms(
             [  'type' => 1,
                 'param1' => (string)$amount,
-                'param2' => (string)$account_id,
+                'param2' => (string)$account_name,
                 'param3' => (string)$balance,
                 'receptor' => (string)$mobile_number,
                 'template' => $template
@@ -311,7 +311,7 @@ class InstallmentController extends Controller
              ("باسلام\nحساب شما دارای $numbers_of_installments ماهیانه پرداخت نشده است." .
                 "لطفا برای پرداخت اقدام کنید.\n".
                 "\nصندوق خانوادگی سلیمانیان (شهید طایف)\nلغو 11") :
-                ("باسلام\nحساب شما دارای $numbers_of_installments قسط پرداخت نشده بابت وام ".$accountInstallments[0]->loan_id."می باشد.لطفا برای پرداخت اقدام کنید.\n".
+                ("باسلام\nحساب شما دارای $numbers_of_installments قسط پرداخت نشده بابت وام شماره ".$accountInstallments[0]->loan_id."می باشد.لطفا برای پرداخت اقدام کنید.\n".
                 "\nصندوق خانوادگی سلیمانیان (شهید طایف)\nلغو 11");
             array_push($messagesArray,urlencode($message));
         }
@@ -335,17 +335,46 @@ class InstallmentController extends Controller
     }
     public function sendReminderSms(){
         $todayJalali = Verta::now()->startDay();
-        $cutoffJalali = $todayJalali->copy()->addDays(30)->endDay();
+        $cutoffJalali = $todayJalali->copy()->addDays(28)->endDay();
         $todayGregorian = $todayJalali->datetime()->format('Y-m-d');
         $cutoffGregorian = $cutoffJalali->datetime()->format('Y-m-d');
 
-        $installments = Installment::whereNull('paid_date')
+        $installments = Installment::whereNull('paid_date')->where('type',2)
             ->whereBetween('due_date', [$todayGregorian, $cutoffGregorian])
             ->get()->groupBy('account_id');
-                return response()->json([
-            'installments' => $installments,
+
+        $accountIds = $installments->keys();
+        $receptorsArray = Account::whereHas('member')
+            ->with('member')
+            ->whereIn('id', $accountIds)->get()->pluck('member.mobile_number')
+            ->filter()->unique()->values()->toArray();
+
+        $messagesArray = [];
+
+        $tt = null;
+        foreach ($installments as $accountId => $accountInstallments) {
+            $numbers_of_installments = sizeof($accountInstallments);
+            $message = $numbers_of_installments > 1 ?
+                ("باسلام\nتا تاریخ سررسید $numbers_of_installments قسط شما کمتر از یک هفته باقیست.\nصندوق خانوادگی سلیمانیان (شهید طایف)\nلغو 11") :
+                ("باسلام\nتا تاریخ سررسید قسط وام شماره ".$accountInstallments[0]->loan_id." کمتر از یک هفته باقیست.\nصندوق خانوادگی سلیمانیان (شهید طایف)\nلغو 11");
+            array_push($messagesArray,urlencode($message));
+        }
+
+
+        $receptors = implode(',', $receptorsArray);
+        $message = implode(',', $messagesArray);
+
+        return sizeof($receptorsArray) > 0 ? $this->smsController->sendBulkSms([
+            'message' =>$message,
+            'receptors' => $receptors
+        ]) : response()->json([
+            'msg' => 'قسط یا ماهیانه پرداخت نشده ای وجود ندارد!',
             'success' => true
         ]);
+//                return response()->json([
+//            'installments' => $installments,
+//            'success' => true
+//        ]);
 
     }
 }

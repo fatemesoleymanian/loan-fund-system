@@ -44,8 +44,8 @@ class TransactionController extends Controller
             $type = $this->transactionTypeForSmsTemplate($validated['type']);
             $sms = null;
 
-            if ($type === 'installment') $sms = $this->sendSms($validated['installment_id'],$validated['account_id'],null,$account->member->mobile_number,$type);
-            if($type != null) $sms = $this->sendSms($validated['amount'],$validated['account_id'],$account->balance,$account->member->mobile_number,$type);
+            if ($type === 'installment') $sms = $this->sendSms($validated['installment_id'],$account->member_name,null,$account->member->mobile_number,$type);
+            if($type != null) $sms = $this->sendSms($validated['amount'],$account->member_name,$account->balance,$account->member->mobile_number,$type);
 
             return $this->successResponse('تراکنش جدیدی با موفقیت اضافه شد.', 201);
         } catch (\Exception $e) {
@@ -359,12 +359,14 @@ class TransactionController extends Controller
             'success' => true
         ]);
     }
-    private function sendSms($amount , $account_id, $balance, $mobile_number,$template){
+    private function sendSms($amount , $account_name, $balance, $mobile_number,$template){
+        $amount = number_format((int)$amount);
+        if($template !== 'installment') $balance = number_format((int)$balance);
         return $this->smsController->
         sendTemplateSms(
             [  'type' => 1,
                 'param1' => (string)$amount,
-                'param2' => (string)$account_id,
+                'param2' => (string)$account_name,
                 'param3' => (string)$balance,
                 'receptor' => (string)$mobile_number,
                 'template' => $template

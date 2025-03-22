@@ -38,8 +38,8 @@ class LoanAccountController extends Controller
                 $this->doPartition($request,$loan,$loan_account->id);
             }
             DB::commit();
-            $sms1 = $this->sendSms($request->amount,$request->account_id,$account->balance,$account->member->mobile_number,'loan');
-            $sms2 = $this->sendSms($request->fee_amount,$request->account_id,$account->balance,$account->member->mobile_number,'fee');
+            $sms1 = $this->sendSms($request->amount,$account->member_name,$account->balance,$account->member->mobile_number,'loan');
+            $sms2 = $this->sendSms($request->fee_amount,$account->member_name,$account->balance,$account->member->mobile_number,'fee');
 
             $installments = Installment::where('loan_account_id',$loan_account->id)->get();
             return response()->json([
@@ -228,14 +228,14 @@ class LoanAccountController extends Controller
             'success' => true
         ]);
     }
-    private function sendSms($amount , $account_id, $balance, $mobile_number,$template){
+    private function sendSms($amount , $account_name, $balance, $mobile_number,$template){
         $amount = number_format((int)$amount);
         $balance = number_format((int)$balance);
         return $this->smsController->
         sendTemplateSms(
             [  'type' => 1,
                 'param1' => (string)$amount,
-                'param2' => (string)$account_id,
+                'param2' => (string)$account_name,
                 'param3' => (string)$balance,
                 'receptor' => (string)$mobile_number,
                 'template' => $template
