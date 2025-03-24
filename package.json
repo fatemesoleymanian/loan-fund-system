@@ -1,14 +1,31 @@
 {
-    "private": true,
+    "name": "laravel-project",
     "scripts": {
-        "dev": "vite",
-        "build": "vite build"
+        "dev": "cd resources/frontend && npm install",
+        "quasar-dev": "cd resources/frontend && quasar dev",
+        "build": "cd resources/frontend && npm install && quasar build",
+        "quasar-build": "cd resources/frontend && quasar build",
+        "lint": "eslint --ext .js,.vue ./resources/frontend/src",
+        "install-frontend-deps": "cd resources/frontend && npm install"
+    },
+    "dependencies": {
+        "@quasar/extras": "^1.16.4",
+        "axios": "^1.2.1",
+        "jalaali-js": "^1.2.7",
+        "quasar": "^2.16.0",
+        "vue": "^3.4.18",
+        "vue-router": "^4.0.12"
     },
     "devDependencies": {
-        "axios": "^1.1.2",
-        "laravel-vite-plugin": "^0.7.2",
-        "lodash": "^4.17.19",
-        "postcss": "^8.1.14",
-        "vite": "^4.0.0"
+        "@quasar/app-vite": "^1.9.0",
+        "autoprefixer": "^10.4.2",
+        "eslint": "^8.57.0",
+        "eslint-config-prettier": "^8.1.0",
+        "eslint-plugin-vue": "^9.0.0",
+        "postcss": "^8.4.14",
+        "postcss-rtlcss": "^5.5.0",
+        "prettier": "^2.5.1",
+        "vite-plugin-checker": "^0.8.0",
+        "laravel-vite-plugin": "^0.8.0"
     }
 }

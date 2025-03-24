@@ -21,8 +21,8 @@ class IPWhiteList
 
         if (!in_array($clientIp,$allowedIps)){
             return response()->json([
-                'error' => 'جازه دسترسی به برنامه به شما داده نشده!'
-//                'dd'=> $token
+                'error' => 'جازه دسترسی به برنامه به شما داده نشده! مشکل در IP'
+//                'dd'=> $clientIp
             ],401);
         }
         return $next($request);
